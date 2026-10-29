@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>شارح القصص بالدارجة</title>
+<meta name="theme-color" content="#3b1470">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f4ee;--card:#fff;--ink:#1f2a37;--mute:#6b7280;--acc:#7c3aed;--line:#e5e1d6;--cap:#fff8e1}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d222a;--ink:#eef1f5;--mute:#9aa4b2;--acc:#a78bfa;--line:#323a46;--cap:#2a2616}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.6}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:4px 0 2px}h3{margin:18px 0 8px;font-size:1rem}
+.sub{margin:0 0 12px;color:var(--mute);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:20px;text-align:center;cursor:pointer;color:var(--mute)}
+#th{display:block;max-width:100%;max-height:200px;margin:10px auto 0;border-radius:8px;border:1px solid var(--line)}
+button{font:inherit;border:0;border-radius:10px;padding:10px 16px;background:var(--acc);color:#fff;cursor:pointer}
+button.g{background:transparent;color:var(--ink);border:1px solid var(--line)}button:disabled{opacity:.45}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.fld{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.fld .w{grid-column:1/-1}
+label.l{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.hide{display:none!important}#msg,#vst{color:var(--mute);margin-top:10px}#msg{color:#e11d48}
+#frame{position:relative;width:100%;aspect-ratio:16/9;background:#111;border:3px solid var(--acc);border-radius:14px;overflow:hidden;direction:ltr}
+#shk{position:absolute;inset:0}#cam{position:absolute;left:0;top:0;transform-origin:0 0}
+#cam img{display:block;width:100%;height:100%;background:#fff}
+#ov{position:absolute;inset:0;width:100%;height:100%;overflow:visible}#ov path{fill:#000;fill-rule:evenodd;transition:opacity .8s}
+#fl{position:absolute;inset:0;pointer-events:none;--iw:800px}
+.bb{position:absolute;transform:translate(-50%,-50%);background:#fff;color:#111;border:calc(var(--iw)*.003) solid #111;border-radius:calc(var(--iw)*.02);padding:.1em .6em;font-size:calc(var(--iw)*.022);font-weight:800;max-width:calc(var(--iw)*.3);text-align:center;direction:rtl;line-height:1.3;animation:pop .4s both}
+.em{position:absolute;transform:translate(-50%,-50%);font-size:calc(var(--iw)*.05);animation:pop .4s both}
+@keyframes pop{from{opacity:0;scale:.5}to{opacity:1;scale:1}}
+.shake{animation:shk .5s linear 5}
+@keyframes shk{0%,100%{transform:translate(0,0)}20%{transform:translate(-14px,8px) rotate(-.6deg)}40%{transform:translate(12px,-9px) rotate(.5deg)}60%{transform:translate(-10px,-6px)}80%{transform:translate(9px,10px) rotate(.4deg)}}
+#fh{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}#fh.on{animation:fla .9s 1}
+@keyframes fla{0%{opacity:0}10%{opacity:.95}30%{opacity:.1}45%{opacity:.8}100%{opacity:0}}
+#badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem;border-radius:8px;padding:2px 10px;direction:rtl}
+#bar{height:6px;background:var(--line);border-radius:3px;margin-top:10px;overflow:hidden}#bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .4s}
+#cap{margin-top:12px;min-height:5em;background:var(--cap);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1.08rem}
+#ed textarea{margin:6px 0;min-height:70px}
+.chk{display:flex;gap:6px;align-items:center;color:var(--mute)}.chk input{width:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>📖 شارح القصص بالدارجة <small style="font-size:.7rem;color:var(--mute)">v1.0</small></h1>
+<p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
+
+<section id="up" class="card">
+  <label class="drop" for="f">اضغط لرفع صورة القصة (كل المشاهد في صورة واحدة)<input id="f" type="file" accept="image/*" hidden></label>
+  <img id="th" class="hide" alt="">
+  <div class="fld">
+    <div class="w"><label class="l" for="ttl">عنوان القصة (اختياري)</label><input id="ttl"></div>
+    <div><label class="l" for="gen">نوع القصة</label><select id="gen"><option>مغامرة وتشويق</option><option>قصة تاريخية</option><option>قصة بقيم وأخلاق</option><option>مرح وفكاهة</option><option>خيال وسحر</option></select></div>
+    <div><label class="l" for="age">الفئة</label><select id="age"><option>أطفال من 5 إلى 8 سنوات</option><option>أطفال من 9 إلى 12 سنة</option><option>مراهقون وكبار</option></select></div>
+    <div><label class="l" for="ord">ترتيب القراءة</label><select id="ord"><option value="r">من اليمين إلى اليسار</option><option value="l">من اليسار إلى اليمين</option></select></div>
+    <div><label class="l" for="cnt">عدد المشاهد (اتركه فارغًا للكشف التلقائي)</label><input id="cnt" inputmode="numeric" placeholder="مثال: 12"></div>
+    <div><label class="l" for="sty">نبرة السرد</label><select id="sty"><option>هادئة</option><option selected>متوسطة الحماس</option><option>حماسية ومشوّقة</option></select></div>
+    <div><label class="l" for="len">طول التعليق</label><select id="len"><option value="جملتان">مختصر</option><option value="3 إلى 4 جمل" selected>متوسط</option><option value="5 إلى 6 جمل">مفصّل</option></select></div>
+    <div class="w"><label class="l" for="sum">ملخص القصة أو ملاحظات (اختياري)</label><textarea id="sum" rows="2"></textarea></div>
+  </div>
+  <div class="row"><button id="go" disabled>✨ إنشاء السرد</button><button class="g" id="gear" type="button">⚙️ الإعدادات</button><span id="st"></span></div>
+  <div id="msg"></div>
+</section>
+
+<section id="set" class="card hide">
+  <h2>⚙️ الإعدادات</h2>
+  <h3>🔑 مفاتيح تحليل القصة (Gemini، وتُقبل مفاتيح Claude التي تبدأ بـ sk-ant-) — مفتاح في كل سطر</h3>
+  <textarea id="kt" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
+  <h3>🎙 مفاتيح الصوت (Gemini، اختياري — إن تُركت فارغة استُعملت مفاتيح التحليل)</h3>
+  <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
+  <h3>🧠 النماذج والصوت</h3>
+  <input id="tm" dir="ltr" placeholder="نموذج التحليل (الافتراضي: gemini-3.8-flash)" style="margin-bottom:8px">
+  <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-2.5-flash-preview-tts)" style="margin-bottom:8px">
+  <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option></select>
+  <div class="row"><button id="sb" type="button">← رجوع</button></div>
+</section>
+
+<section id="pl" class="hide">
+  <div id="frame"><div id="shk"><div id="cam"><img id="im" alt="القصة"><svg id="ov" viewBox="0 0 100 100" preserveAspectRatio="none"><path id="o1"/><path id="o2"/></svg><div id="fl"></div></div></div><div id="fh"></div><div id="badge"></div></div>
+  <div id="bar"><i></i></div>
+  <div id="cap" aria-live="polite"></div>
+  <div class="row"><button id="pp">⏸ إيقاف</button><button class="g" id="pv">السابق</button><button class="g" id="nx">التالي</button><button class="g" id="rs">إعادة</button><label class="chk"><input type="checkbox" id="snd" checked> صوت</label><button class="g" id="fs">⛶</button></div>
+  <div class="row"><button id="ga">🎙 إنشاء الصوت</button><button class="g" id="da" disabled>⬇ تحميل الصوت WAV</button><button class="g" id="nw">قصة جديدة</button></div>
+  <div id="vst"></div>
+  <details class="card" style="margin-top:12px"><summary>✏️ تعديل نص كل مشهد قبل توليد الصوت</summary><div id="ed"></div></details>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const keys=k=>$(k).value.split(/\s+/).filter(Boolean);
+let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null;
+["kt","ka","tm","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});
+$("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
+$("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
+
+// ---- الاتصال بالنماذج ----
+const kerr=(st,m)=>{const e=new Error(m);e.retry=[401,403,429,500,503].includes(st);return e};
+async function fetchT(u,o,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await fetch(u,{...o,signal:c.signal})}catch(e){throw new Error(e.name==="AbortError"?"انتهت مهلة الانتظار.":"تعذّر الاتصال بالإنترنت.")}finally{clearTimeout(t)}}
+async function useKeys(list,fn,st=0){if(!list.length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");let last;for(let n=0;n<list.length;n++){try{return await fn(list[(st+n)%list.length])}catch(e){last=e;if(!e.retry)throw e}}throw last}
+function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<a)throw new Error("ردّ غير صالح");t=t.slice(a,b+1);try{return JSON.parse(t)}catch(e){return JSON.parse(t.replace(/,\s*([}\]])/g,"$1"))}}
+const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
+async function llm(prompt){const im=await b64(img.blob);let last;
+  for(let at=0;at<2;at++){try{return await useKeys(keys("kt"),async k=>{let t;
+    if(!k.startsWith("sk-ant-")){
+      const r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+($("tm").value.trim()||"gemini-3.8-flash")+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},120000);
+      const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من Gemini");
+      t=((d.candidates||[{}])[0].content||{parts:[]}).parts.map(p=>p.text||"").join("")
+    }else{
+      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im}},{type:"text",text:prompt}]}]})},150000);
+      const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من الخادم");t=d.content.map(c=>c.text||"").join("")}
+    return parseJ(t)})}catch(e){last=e;if(e.retry)throw e}}
+  throw new Error("ردّ النموذج غير صالح: "+last.message+" — أعد المحاولة.")}
+
+// ---- رفع الصورة ----
+$("f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{const k=Math.min(1,3000/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+    c.toBlob(b=>{img={blob:b,url:URL.createObjectURL(b),w:c.width,h:c.height};$("th").src=img.url;$("th").classList.remove("hide");$("go").disabled=false},"image/jpeg",.9)};
+  im.onerror=()=>{$("msg").textContent="تعذّر قراءة الصورة."};im.src=u};
+
+// ---- تحليل القصة ----
+const ok=b=>{if(!Array.isArray(b)||b.length!==4||!b.every(n=>typeof n==="number"&&isFinite(n)))return null;let[x,y,w,h]=b.map(n=>Math.max(0,Math.min(1,n)));w=Math.min(w,1-x);h=Math.min(h,1-y);return w<.02||h<.02?null:[x,y,w,h]};
+$("go").onclick=async()=>{$("msg").textContent="";$("go").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("st").textContent="⏳ جارٍ تحليل القصة... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("st").textContent="⏳ جارٍ تحليل القصة...";
+  try{const n=$("cnt").value.replace(/\D/g,""),T=$("ttl").value.trim(),M=$("sum").value.trim();
+    const p=`أنت كاتب قصص ومعلّق محترف للأطفال بالدارجة الجزائرية. الصورة المرفقة صفحة واحدة تضم مشاهد مصورة لقصة مرتبة في شبكة، وتحت كل مشهد شرح قصير مكتوب.
+${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك."} ترتيب القراءة: ${$("ord").value==="r"?"من اليمين إلى اليسار":"من اليسار إلى اليمين"} ثم الأسطر من الأعلى إلى الأسفل.
+نوع القصة: ${$("gen").value}. الفئة: ${$("age").value}. نبرة السرد: ${$("sty").value}. طول تعليق كل مشهد: ${$("len").value}.${T?" عنوان القصة: "+T+".":""}${M?" ملاحظات صاحب القصة: "+M:""}
+لكل مشهد:
+(1) box: مستطيل الرسم وحده دون الشرح المكتوب تحته، [x,y,w,h] بأرقام من 0 إلى 1 نسبةً إلى الصورة كلها.
+(2) caption: الشرح المكتوب تحت المشهد.
+(3) say: تعليق الراوي بالدارجة الجزائرية الودودة، مبني على الرسم وعلى الشرح معًا وليس نسخًا له. أدخل الحوار بين الشخصيات داخل السرد («قال له: ...»)، واربط المشاهد ببعضها، واجعل أول مشهد مشوّقًا وآخر مشهد خاتمة مؤثرة.
+(4) tts: النص نفسه مهيّأ للنطق: إملاء صوتي واضح للدارجة مع تشكيل خفيف للكلمات الملتبسة، الأرقام حروفًا، والكلمات الفرنسية بحروفها اللاتينية.
+(5) fx مؤثر يناسب الحدث، ونوّع بينها: zoom (تقريب على شخصية أو شيء)، shake (هزّة لزلزال أو انفجار أو خوف)، reveal (يبدأ بالتركيز على جزء ثم يُكشف المشهد كاملًا، مثل شخص مختبئ أو مفاجأة)، spotlight (إبراز شخصية وتعتيم الباقي)، pan (تحريك الكاميرا عبر المشهد)، flash (وميض برق أو انفجار)، none.
+(6) focus: مستطيل الشخصية أو الشيء المهم [x,y,w,h] بنسب الصورة كلها، ضيق ومحكم؛ يلزم مع zoom وreveal وspotlight، وإلا null.
+(7) bubble اختياري: {"x":0.5,"y":0.3,"text":"..."} فقاعة قصيرة (حتى 5 كلمات) بالدارجة فوق الشخصية المتكلمة بنسب الصورة كلها، وإلا null.
+(8) emoji واحد يعبّر عن الإحساس أو "". (9) pause عدد صحيح من 0 إلى 2 ثانية.
+أعد JSON فقط بلا markdown: {"title":"عنوان القصة","scenes":[{"box":[0,0,0,0],"caption":"","say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1}]}`;
+    const j=await llm(p);title=T||j.title||"قصة";
+    sc=(j.scenes||[]).filter(s=>s&&s.say).map(s=>({...s,box:ok(s.box),focus:ok(s.focus),tts:(typeof s.tts==="string"&&s.tts.trim())?s.tts:s.say,pause:Math.max(0,Math.min(3,+s.pause||0)),bubble:s.bubble&&s.bubble.text&&isFinite(+s.bubble.x)&&isFinite(+s.bubble.y)?{x:Math.max(.05,Math.min(.95,+s.bubble.x)),y:Math.max(.05,Math.min(.95,+s.bubble.y)),text:String(s.bubble.text)}:null,url:null,pcm:null,sig:null}));
+    if(!sc.length)throw new Error("لم أستطع فهم القصة، جرّب صورة أوضح.");
+    start()}catch(e){$("msg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
+  clearInterval(iv);$("st").textContent="";$("go").disabled=false};
+
+// ---- العرض ----
+function start(){$("up").classList.add("hide");$("pl").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";$("vst").textContent="";
+  $("ed").innerHTML="";sc.forEach((s,i)=>{const t=document.createElement("textarea");t.value=s.say;t.oninput=()=>{s.say=s.tts=t.value;updGa()};const l=document.createElement("label");l.className="l";l.textContent="المشهد "+(i+1);$("ed").append(l,t)});
+  $("im").src=img.url;camTo(null,0);updGa();requestAnimationFrame(()=>show(0))}
+function stopAll(){tok++;clearTimeout(tm);if(au){au.pause();au=null}try{speechSynthesis.cancel()}catch(e){}}
+function camTo(b,dur){const F=$("frame"),W=F.clientWidth,H=F.clientHeight,iw=W,ih=W*img.h/img.w;let s,cx=.5,cy=.5;
+  if(b){s=Math.max(.3,Math.min(8,.9*W/(b[2]*iw),.9*H/(b[3]*ih)));cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}else s=Math.min(W/iw,H/ih);
+  const c=$("cam");c.style.width=iw+"px";c.style.height=ih+"px";$("fl").style.setProperty("--iw",iw+"px");
+  c.style.transition=dur?`transform ${dur}s cubic-bezier(.45,0,.2,1)`:"none";c.style.transform=`translate(${W/2-cx*iw*s}px,${H/2-cy*ih*s}px) scale(${s})`}
+function setOv(id,b,op){const hole=b?`M${b[0]*100} ${b[1]*100}h${b[2]*100}v${b[3]*100}h${-b[2]*100}Z`:"";const p=$(id);p.setAttribute("d","M-300 -300H400V400H-300Z"+hole);p.style.opacity=op}
+function show(i){stopAll();const my=tok;if(i<0)i=0;if(i>=sc.length){finish();return}cur=i;
+  const s=sc[i],b=s.box||[0,0,1,1],f=s.focus,fx=s.fx||"zoom",at=(ms,fn)=>{setTimeout(()=>{if(my===tok)fn()},ms)};
+  setOv("o1",b,.94);setOv("o2",f,0);$("fl").innerHTML="";$("shk").classList.remove("shake");$("fh").classList.remove("on");
+  if(fx==="reveal"&&f){camTo(f,1.2);setOv("o2",f,.97);at(3400,()=>{setOv("o2",f,0);camTo(b,1.6)})}
+  else if(fx==="spotlight"&&f){camTo(b,1.2);at(1300,()=>{setOv("o2",f,.65);camTo(f,1.4)})}
+  else if(fx==="pan"){camTo([b[0],b[1],b[2]*.6,b[3]],1);at(1200,()=>camTo([b[0]+b[2]*.4,b[1],b[2]*.6,b[3]],4))}
+  else{camTo(b,1.1);
+    if(fx==="shake")at(1000,()=>$("shk").classList.add("shake"));
+    else if(fx==="flash")at(1000,()=>{void $("fh").offsetWidth;$("fh").classList.add("on")});
+    else if(fx==="zoom"&&f)at(1800,()=>camTo(f,1.4))}
+  at(1600,()=>{const c=f||b,fl=$("fl");
+    if(s.emoji)fl.insertAdjacentHTML("beforeend",`<div class="em" style="left:${(c[0]+c[2]/2)*100}%;top:${Math.max(.04,c[1]-.03)*100}%">${s.emoji}</div>`);
+    if(s.bubble){const d=document.createElement("div");d.className="bb";d.style.left=s.bubble.x*100+"%";d.style.top=s.bubble.y*100+"%";d.textContent=s.bubble.text;fl.appendChild(d)}});
+  $("badge").textContent=`مشهد ${i+1} من ${sc.length}`;$("bar").firstElementChild.style.width=((i+1)/sc.length*100)+"%";$("cap").textContent=s.say;
+  const next=()=>{if(my===tok&&playing)tm=setTimeout(()=>{if(my===tok&&playing)show(cur+1)},900+s.pause*1000)};
+  let sp=false;
+  if($("snd").checked&&playing){
+    if(s.url&&s.sig===sigOf(s)){au=new Audio(s.url);au.onended=next;au.play().catch(next);sp=true}
+    else if("speechSynthesis" in window){try{const u=new SpeechSynthesisUtterance(s.say);u.lang="ar-SA";u.rate=.9;u.onend=next;u.onerror=next;speechSynthesis.speak(u);sp=true}catch(e){}}}
+  if(!sp&&playing)tm=setTimeout(()=>{if(my===tok&&playing)show(cur+1)},4500+s.say.length*60+s.pause*1000)}
+function finish(){stopAll();playing=false;$("pp").textContent="▶ تشغيل";$("shk").classList.remove("shake");setOv("o1",null,0);setOv("o2",null,0);$("fl").innerHTML="";camTo(null,1);$("cap").textContent="انتهت القصة 🎉 اضغط «إعادة» لمشاهدتها مرة أخرى.";$("badge").textContent="النهاية"}
+$("pp").onclick=()=>{if(playing){playing=false;stopAll();$("pp").textContent="▶ تشغيل"}else{playing=true;$("pp").textContent="⏸ إيقاف";show(cur>=sc.length-1&&$("badge").textContent==="النهاية"?0:cur)}};
+$("nx").onclick=()=>show(cur+1);$("pv").onclick=()=>show(cur-1);
+$("rs").onclick=()=>{playing=true;$("pp").textContent="⏸ إيقاف";show(0)};
+$("snd").onchange=()=>{if(cur>=0)show(cur)};
+$("nw").onclick=()=>{stopAll();$("pl").classList.add("hide");$("up").classList.remove("hide")};
+$("fs").onclick=()=>{const f=$("frame");(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};
+addEventListener("resize",()=>{if(cur>=0&&img&&!$("pl").classList.contains("hide"))camTo(sc[cur]&&sc[cur].box,0)});
+
+// ---- الصوت ----
+const modelT=()=>$("tmt").value.trim()||"gemini-2.5-flash-preview-tts",sigOf=s=>(s.tts||s.say)+"|"+modelT()+"|"+$("gv").value;
+function wav(pcm,rate){const n=pcm.length,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,t)=>[...t].forEach((c,k)=>v.setUint8(o+k,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);new Int16Array(b,44).set(pcm);return new Blob([b],{type:"audio/wav"})}
+async function tts(s,k0){const txt=s.tts||s.say,v=$("gv").value,ak=keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-"));
+  const p=await useKeys([...new Set(ak)],async k=>{for(let a=0;a<3;a++){
+    const r=await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${modelT()}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},
+      body:JSON.stringify({contents:[{parts:[{text:"Read the following story narration in Algerian Arabic (Darija) like a warm, expressive storyteller for children: natural pauses, a livelier voice for dialogue, a hushed voice for suspense. Keep French words as they are:\n"+txt}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:v}}}}})},90000);
+    const d=await r.json().catch(()=>({}));if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ "+r.status);
+    const pt=((d.candidates||[{}])[0].content||{parts:[]}).parts.find(x=>x.inlineData);if(pt)return pt;await new Promise(z=>setTimeout(z,1200))}
+    throw new Error("لم يُرجع النموذج صوتًا، أعد المحاولة.")},k0);
+  const rate=+((/rate=(\d+)/.exec(p.inlineData.mimeType||"")||[])[1])||24000,bin=atob(p.inlineData.data),n=bin.length>>1,pcm=new Int16Array(n);
+  for(let i=0;i<n;i++){const q=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);pcm[i]=q>32767?q-65536:q}
+  s.pcm=pcm;s.rate=rate;s.url=URL.createObjectURL(wav(pcm,rate));s.sig=sigOf(s)}
+const rdy=()=>sc.filter(s=>s.url&&s.sig===sigOf(s)).length;
+function updGa(){const d=rdy();$("ga").textContent=d===0?"🎙 إنشاء الصوت":d<sc.length?`▶ إكمال الصوت (${d}/${sc.length})`:"🎙 إعادة إنشاء الصوت";$("da").disabled=d<sc.length}
+$("ga").onclick=async()=>{const ak=[...new Set(keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-")))];
+  if(!ak.length){$("vst").textContent="أضف مفتاح Gemini للصوت من الإعدادات ⚙️.";return}
+  stopAll();playing=false;$("pp").textContent="▶ تشغيل";
+  if(rdy()===sc.length){if(!confirm("الصوت جاهز بالكامل. إعادة إنشائه من جديد؟"))return;sc.forEach(s=>{s.url=s.pcm=s.sig=null})}
+  const todo=[];sc.forEach((s,i)=>{if(!(s.url&&s.sig===sigOf(s)))todo.push(i)});let nx=0,done=0,err=null;$("ga").disabled=true;
+  const run=async w=>{while(!err&&nx<todo.length){const i=todo[nx++];try{await tts(sc[i],w)}catch(e){err=err||e;return}done++;$("vst").textContent=`جارٍ إنشاء الصوت... (${done}/${todo.length})`;updGa()}};
+  $("vst").textContent=`جارٍ إنشاء الصوت... (0/${todo.length})`;
+  await Promise.all(Array.from({length:Math.min(3,ak.length)},(_,w)=>run(w)));
+  $("ga").disabled=false;updGa();
+  $("vst").textContent=err?"توقّف الإنشاء: "+String(err.message||err).slice(0,140)+" — ما أُنجز محفوظ، اضغط «إكمال الصوت» لاحقًا.":"تم إنشاء الصوت ✅ اضغط «إعادة» لتشاهد القصة بصوتك."};
+$("da").onclick=()=>{const r=sc[0].rate,gap=s=>Math.round((.9+s.pause)*r),n=sc.reduce((a,s)=>a+s.pcm.length+gap(s),0),out=new Int16Array(n);let o=0;sc.forEach(s=>{out.set(s.pcm,o);o+=s.pcm.length+gap(s)});
+  const a=document.createElement("a");a.href=URL.createObjectURL(wav(out,r));a.download="story-audio.wav";document.body.appendChild(a);a.click();a.remove()};
+
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
