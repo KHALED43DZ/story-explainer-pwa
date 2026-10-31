@@ -51,7 +51,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 1.3</div>
+<div class="ver">الإصدار 1.5</div>
 <h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
 
@@ -80,7 +80,8 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
   <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
   <h3>🧠 النماذج والصوت</h3>
   <input id="tm" dir="ltr" placeholder="نموذج التحليل (الافتراضي: gemini-3.8-flash)" style="margin-bottom:8px">
-  <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-2.5-flash-preview-tts)" style="margin-bottom:8px">
+  <input id="tm2" dir="ltr" placeholder="نموذج تحليل بديل عند الازدحام (اختياري)" style="margin-bottom:8px">
+  <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-3.8-flash-tts)" style="margin-bottom:8px">
   <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option></select>
   <div class="row"><button id="sb" type="button">← رجوع</button></div>
 </section>
@@ -99,12 +100,12 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const keys=k=>$(k).value.split(/\s+/).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null;
-["kt","ka","tm","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});
+["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});
 $("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
 $("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
 
 // ---- الاتصال بالنماذج ----
-const kerr=(st,m)=>{const e=new Error(st===503||st===429?"الخادم مشغول حاليًا أو نفدت الحصة. أعد المحاولة بعد دقائق، أو غيّر نموذج التحليل من الإعدادات (مثل gemini-2.5-flash).":m);e.retry=[401,403,429,500,503].includes(st);return e};
+const kerr=(st,m)=>{const e=new Error(st===503||st===429?"الخادم مشغول حاليًا أو نفدت الحصة. أعد المحاولة بعد دقائق، أو أضف نموذجًا بديلًا من الإعدادات.":m);e.retry=[401,403,429,500,503].includes(st);return e};
 async function fetchT(u,o,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await fetch(u,{...o,signal:c.signal})}catch(e){throw new Error(e.name==="AbortError"?"انتهت مهلة الانتظار.":"تعذّر الاتصال بالإنترنت.")}finally{clearTimeout(t)}}
 async function useKeys(list,fn,st=0){if(!list.length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");let last;for(let n=0;n<list.length;n++){try{return await fn(list[(st+n)%list.length])}catch(e){last=e;if(!e.retry)throw e}}throw last}
 function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<a)throw new Error("ردّ غير صالح");t=t.slice(a,b+1);try{return JSON.parse(t)}catch(e){return JSON.parse(t.replace(/,\s*([}\]])/g,"$1"))}}
@@ -112,10 +113,10 @@ const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.sp
 async function llm(prompt){const im=await b64(img.sm||img.blob);let last;
   for(let at=0;at<2;at++){try{return await useKeys(keys("kt"),async k=>{let t;
     if(!k.startsWith("sk-ant-")){
-      const ms=[$("tm").value.trim()||"gemini-3.8-flash","gemini-2.5-flash"];let r,d;
-      for(let a=0;a<4;a++){r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+ms[a<2?0:1]+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
-        d=await r.json().catch(()=>({}));if(r.status!==503&&r.status!==429)break;
-        $("st").textContent="⏳ الخادم مشغول، تتم إعادة المحاولة"+(a>=1?" بنموذج بديل":"")+"...";await new Promise(z=>setTimeout(z,3000*(a+1)))}
+      const m1=$("tm").value.trim()||"gemini-3.8-flash";let m2=$("tm2").value.trim(),r,d;
+      for(let a=0;a<5;a++){const m=(a>=2&&m2)?m2:m1;r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
+        d=await r.json().catch(()=>({}));if(r.status===404&&m!==m1){m2="";continue}if(r.status!==503&&r.status!==429)break;
+        $("st").textContent="⏳ الخادم مشغول، تتم إعادة المحاولة ("+(a+1)+"/5)...";await new Promise(z=>setTimeout(z,4000*(a+1)))}
       if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من Gemini");
       t=((d.candidates||[{}])[0].content||{parts:[]}).parts.map(p=>p.text||"").join("")
     }else{
@@ -193,18 +194,25 @@ $("fs").onclick=()=>{const f=$("frame");(f.requestFullscreen||f.webkitRequestFul
 addEventListener("resize",()=>{if(cur>=0&&img&&!$("pl").classList.contains("hide"))camTo(sc[cur]&&sc[cur].box,0)});
 
 // ---- الصوت ----
-const modelT=()=>$("tmt").value.trim()||"gemini-2.5-flash-preview-tts",sigOf=s=>(s.tts||s.say)+"|"+modelT()+"|"+$("gv").value;
+const modelT=()=>$("tmt").value.trim()||"gemini-3.8-flash-tts",sigOf=s=>(s.tts||s.say)+"|"+modelT()+"|"+$("gv").value;
 function wav(pcm,rate){const n=pcm.length,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,t)=>[...t].forEach((c,k)=>v.setUint8(o+k,c.charCodeAt(0)));
   w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);new Int16Array(b,44).set(pcm);return new Blob([b],{type:"audio/wav"})}
-async function tts(s,k0){const txt=s.tts||s.say,v=$("gv").value,ak=keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-"));
-  const p=await useKeys([...new Set(ak)],async k=>{for(let a=0;a<3;a++){
-    const r=await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${modelT()}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},
-      body:JSON.stringify({contents:[{parts:[{text:"Read the following story narration in Algerian Arabic (Darija) like a warm, expressive storyteller for children: natural pauses, a livelier voice for dialogue, a hushed voice for suspense. Keep French words as they are:\n"+txt}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:v}}}}})},90000);
-    const d=await r.json().catch(()=>({}));if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ "+r.status);
-    const pt=((d.candidates||[{}])[0].content||{parts:[]}).parts.find(x=>x.inlineData);if(pt)return pt;await new Promise(z=>setTimeout(z,1200))}
-    throw new Error("لم يُرجع النموذج صوتًا، أعد المحاولة.")},k0);
-  const rate=+((/rate=(\d+)/.exec(p.inlineData.mimeType||"")||[])[1])||24000,bin=atob(p.inlineData.data),n=bin.length>>1,pcm=new Int16Array(n);
-  for(let i=0;i<n;i++){const q=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);pcm[i]=q>32767?q-65536:q}
+async function tts(s,k0){const txt=s.tts||s.say,v=$("gv").value,ak=[...new Set(keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-")))],
+  sty="Read as a warm, expressive storyteller for children in Algerian Arabic (Darija): natural pauses, a livelier voice for dialogue, a hushed voice for suspense. Keep French words as they are.";
+  const p=await useKeys(ak,async k=>{let msg="";
+    for(const m of [...new Set([modelT(),"gemini-3.1-flash-tts-preview"])]){
+      for(let a=0;a<3;a++){
+        const r=await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},
+          body:JSON.stringify({contents:[{parts:[/3\.8/.test(m)?{text:txt,speechMetadata:{style:sty}}:{text:sty+"\n"+txt}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:v}}}}})},90000);
+        const d=await r.json().catch(()=>({}));
+        if(r.status===404){msg=(d.error&&d.error.message)||"النموذج غير متاح";break}
+        if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ "+r.status);
+        const pt=((d.candidates||[{}])[0].content||{parts:[]}).parts.find(x=>x.inlineData);if(pt)return pt;
+        await new Promise(z=>setTimeout(z,1200))}}
+    throw new Error(msg||"لم يُرجع النموذج صوتًا، أعد المحاولة.")},k0);
+  const raw=Uint8Array.from(atob(p.inlineData.data),c=>c.charCodeAt(0)),dv=new DataView(raw.buffer);let rate=+((/rate=(\d+)/.exec(p.inlineData.mimeType||"")||[])[1])||24000,off=0;
+  if(raw[0]===82&&raw[1]===73&&raw[2]===70&&raw[3]===70){rate=dv.getUint32(24,true);off=44;for(let i=12;i<raw.length-8;){const id=String.fromCharCode(raw[i],raw[i+1],raw[i+2],raw[i+3]),sz=dv.getUint32(i+4,true);if(id==="data"){off=i+8;break}i+=8+sz+(sz&1)}}
+  const n=(raw.length-off)>>1,pcm=new Int16Array(n);for(let i=0;i<n;i++)pcm[i]=dv.getInt16(off+2*i,true);
   s.pcm=pcm;s.rate=rate;s.url=URL.createObjectURL(wav(pcm,rate));s.sig=sigOf(s)}
 const rdy=()=>sc.filter(s=>s.url&&s.sig===sigOf(s)).length;
 function updGa(){const d=rdy();$("ga").textContent=d===0?"🎙 إنشاء الصوت":d<sc.length?`▶ إكمال الصوت (${d}/${sc.length})`:"🎙 إعادة إنشاء الصوت";$("da").disabled=d<sc.length}
