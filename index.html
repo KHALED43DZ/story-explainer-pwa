@@ -51,7 +51,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 1.5</div>
+<div class="ver">الإصدار 1.6</div>
 <h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
 
@@ -91,7 +91,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
   <div id="bar"><i></i></div>
   <div id="cap" aria-live="polite"></div>
   <div class="row"><button id="pp">⏸ إيقاف</button><button class="g" id="pv">السابق</button><button class="g" id="nx">التالي</button><button class="g" id="rs">إعادة</button><label class="chk"><input type="checkbox" id="snd" checked> صوت</label><button class="g" id="fs">⛶</button></div>
-  <div class="row"><button id="ga">🎙 إنشاء الصوت</button><button class="g" id="da" disabled>⬇ تحميل الصوت WAV</button><button class="g" id="nw">قصة جديدة</button></div>
+  <div class="row"><button id="ga">🎙 إنشاء الصوت</button><button class="g" id="da" disabled>⬇ تحميل الصوت WAV</button><button id="vb">🎬 إنشاء الفيديو</button><select id="vres" style="width:auto"><option value="1280">جودة 720</option><option value="1920">جودة 1080</option></select><button class="g" id="nw">قصة جديدة</button></div>
   <div id="vst"></div>
   <details class="card" style="margin-top:12px"><summary>✏️ تعديل نص كل مشهد قبل توليد الصوت</summary><div id="ed"></div></details>
 </section>
@@ -99,7 +99,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 <script>
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const keys=k=>$(k).value.split(/\s+/).filter(Boolean);
-let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null;
+let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
 ["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});
 $("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
 $("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
@@ -157,13 +157,14 @@ ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك
 // ---- العرض ----
 function start(){$("up").classList.add("hide");$("pl").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";$("vst").textContent="";
   $("ed").innerHTML="";sc.forEach((s,i)=>{const t=document.createElement("textarea");t.value=s.say;t.oninput=()=>{s.say=s.tts=t.value;updGa()};const l=document.createElement("label");l.className="l";l.textContent="المشهد "+(i+1);$("ed").append(l,t)});
-  $("im").src=img.url;camTo(null,0);updGa();requestAnimationFrame(()=>show(0))}
+  $("im").src=img.url;const ar=sc.filter(x=>x.box).map(x=>x.box[2]*img.w/(x.box[3]*img.h)).sort((a,b)=>a-b);ASP=Math.round(Math.max(.4,Math.min(2.5,ar.length?ar[ar.length>>1]:img.w/img.h))*100)/100;
+  const F=$("frame");F.style.aspectRatio=ASP;F.style.width=`min(100%,${Math.round(72*ASP)}vh)`;F.style.margin="0 auto";camTo(null,0);updGa();requestAnimationFrame(()=>show(0))}
 function stopAll(){tok++;clearTimeout(tm);if(au){au.pause();au=null}try{speechSynthesis.cancel()}catch(e){}}
 function camTo(b,dur){const F=$("frame"),W=F.clientWidth,H=F.clientHeight,iw=W,ih=W*img.h/img.w;let s,cx=.5,cy=.5;
   if(b){s=Math.max(.3,Math.min(8,.9*W/(b[2]*iw),.9*H/(b[3]*ih)));cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}else s=Math.min(W/iw,H/ih);
   const c=$("cam");c.style.width=iw+"px";c.style.height=ih+"px";$("fl").style.setProperty("--iw",iw+"px");
   c.style.transition=dur?`transform ${dur}s cubic-bezier(.45,0,.2,1)`:"none";c.style.transform=`translate(${W/2-cx*iw*s}px,${H/2-cy*ih*s}px) scale(${s})`}
-function setOv(id,b,op){const hole=b?`M${b[0]*100} ${b[1]*100}h${b[2]*100}v${b[3]*100}h${-b[2]*100}Z`:"";const p=$(id);p.setAttribute("d","M-300 -300H400V400H-300Z"+hole);p.style.opacity=op}
+const OV={};function setOv(id,b,op){OV[id]=b;const hole=b?`M${b[0]*100} ${b[1]*100}h${b[2]*100}v${b[3]*100}h${-b[2]*100}Z`:"";const p=$(id);p.setAttribute("d","M-300 -300H400V400H-300Z"+hole);p.style.opacity=op}
 function show(i){stopAll();const my=tok;if(i<0)i=0;if(i>=sc.length){finish();return}cur=i;
   const s=sc[i],b=s.box||[0,0,1,1],f=s.focus,fx=s.fx||"zoom",at=(ms,fn)=>{setTimeout(()=>{if(my===tok)fn()},ms)};
   setOv("o1",b,.94);setOv("o2",f,0);$("fl").innerHTML="";$("shk").classList.remove("shake");$("fh").classList.remove("on");
@@ -177,15 +178,16 @@ function show(i){stopAll();const my=tok;if(i<0)i=0;if(i>=sc.length){finish();ret
   at(1600,()=>{const c=f||b,fl=$("fl");
     if(s.emoji)fl.insertAdjacentHTML("beforeend",`<div class="em" style="left:${(c[0]+c[2]/2)*100}%;top:${Math.max(.04,c[1]-.03)*100}%">${s.emoji}</div>`);
     if(s.bubble){const d=document.createElement("div");d.className="bb";d.style.left=s.bubble.x*100+"%";d.style.top=s.bubble.y*100+"%";d.textContent=s.bubble.text;fl.appendChild(d)}});
-  $("badge").textContent=`مشهد ${i+1} من ${sc.length}`;$("bar").firstElementChild.style.width=((i+1)/sc.length*100)+"%";$("cap").textContent=s.say;
+  $("badge").textContent=`مشهد ${i+1} من ${sc.length}`;if(REC)$("vst").textContent=`🔴 جارٍ تسجيل الفيديو... مشهد ${i+1} من ${sc.length} — أبقِ الشاشة والتطبيق مفتوحين`;$("bar").firstElementChild.style.width=((i+1)/sc.length*100)+"%";$("cap").textContent=s.say;
   const next=()=>{if(my===tok&&playing)tm=setTimeout(()=>{if(my===tok&&playing)show(cur+1)},900+s.pause*1000)};
   let sp=false;
-  if($("snd").checked&&playing){
-    if(s.url&&s.sig===sigOf(s)){au=new Audio(s.url);au.onended=next;au.play().catch(next);sp=true}
+  if((REC||$("snd").checked)&&playing){
+    if(s.url&&s.sig===sigOf(s)&&REC){const bf=REC.ctx.createBuffer(1,s.pcm.length,s.rate),ch=bf.getChannelData(0);for(let q=0;q<ch.length;q++)ch[q]=s.pcm[q]/32768;const src=REC.ctx.createBufferSource();src.buffer=bf;src.connect(REC.dst);src.onended=next;src.start();au={pause(){try{src.onended=null;src.stop()}catch(e){}}};sp=true}
+    else if(s.url&&s.sig===sigOf(s)){au=new Audio(s.url);au.onended=next;au.play().catch(next);sp=true}
     else if("speechSynthesis" in window){try{const u=new SpeechSynthesisUtterance(s.say);u.lang="ar-SA";u.rate=.9;u.onend=next;u.onerror=next;speechSynthesis.speak(u);sp=true}catch(e){}}}
   if(!sp&&playing)tm=setTimeout(()=>{if(my===tok&&playing)show(cur+1)},4500+s.say.length*60+s.pause*1000)}
-function finish(){stopAll();playing=false;$("pp").textContent="▶ تشغيل";$("shk").classList.remove("shake");setOv("o1",null,0);setOv("o2",null,0);$("fl").innerHTML="";camTo(null,1);$("cap").textContent="انتهت القصة 🎉 اضغط «إعادة» لمشاهدتها مرة أخرى.";$("badge").textContent="النهاية"}
-$("pp").onclick=()=>{if(playing){playing=false;stopAll();$("pp").textContent="▶ تشغيل"}else{playing=true;$("pp").textContent="⏸ إيقاف";show(cur>=sc.length-1&&$("badge").textContent==="النهاية"?0:cur)}};
+function finish(){stopAll();if(REC){setTimeout(()=>{if(REC&&REC.mr.state!=="inactive")REC.mr.stop()},600);return}playing=false;$("pp").textContent="▶ تشغيل";$("shk").classList.remove("shake");setOv("o1",null,0);setOv("o2",null,0);$("fl").innerHTML="";camTo(null,1);$("cap").textContent="انتهت القصة 🎉 اضغط «إعادة» لمشاهدتها مرة أخرى.";$("badge").textContent="النهاية"}
+$("pp").onclick=()=>{if(REC){cancelRec();return}if(playing){playing=false;stopAll();$("pp").textContent="▶ تشغيل"}else{playing=true;$("pp").textContent="⏸ إيقاف";show(cur>=sc.length-1&&$("badge").textContent==="النهاية"?0:cur)}};
 $("nx").onclick=()=>show(cur+1);$("pv").onclick=()=>show(cur-1);
 $("rs").onclick=()=>{playing=true;$("pp").textContent="⏸ إيقاف";show(0)};
 $("snd").onchange=()=>{if(cur>=0)show(cur)};
@@ -228,6 +230,38 @@ $("ga").onclick=async()=>{const ak=[...new Set(keys("ka").concat(keys("kt")).fil
   $("vst").textContent=err?"توقّف الإنشاء: "+String(err.message||err).slice(0,140)+" — ما أُنجز محفوظ، اضغط «إكمال الصوت» لاحقًا.":"تم إنشاء الصوت ✅ اضغط «إعادة» لتشاهد القصة بصوتك."};
 $("da").onclick=()=>{const r=sc[0].rate,gap=s=>Math.round((.9+s.pause)*r),n=sc.reduce((a,s)=>a+s.pcm.length+gap(s),0),out=new Int16Array(n);let o=0;sc.forEach(s=>{out.set(s.pcm,o);o+=s.pcm.length+gap(s)});
   const a=document.createElement("a");a.href=URL.createObjectURL(wav(out,r));a.download="story-audio.wav";document.body.appendChild(a);a.click();a.remove()};
+
+
+// ---- تصدير الفيديو (بنفس أبعاد المشاهد) ----
+const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres"].forEach(i=>$(i).disabled=b);
+function bub(g,t,x,y,iw){const fs=iw*.022,mw=iw*.28;g.font=`800 ${fs}px Cairo,Tahoma,sans-serif`;g.direction="rtl";g.textAlign="center";g.textBaseline="middle";
+  const ls=[];let l="";for(const w of t.split(/\s+/)){const c=l?l+" "+w:w;if(g.measureText(c).width>mw&&l){ls.push(l);l=w}else l=c}ls.push(l);
+  const lh=fs*1.35,w=Math.max(...ls.map(q=>g.measureText(q).width))+fs*1.2,h=ls.length*lh+fs*.6;
+  g.fillStyle="#fff";g.strokeStyle="#111";g.lineWidth=iw*.003;g.beginPath();g.roundRect?g.roundRect(x-w/2,y-h/2,w,h,iw*.02):g.rect(x-w/2,y-h/2,w,h);g.fill();g.stroke();
+  g.fillStyle="#111";ls.forEach((q,i)=>g.fillText(q,x,y-h/2+fs*.3+lh*(i+.5)))}
+function draw(){if(!REC)return;const{g,cv}=REC,F=$("frame"),Fw=F.clientWidth,Fh=F.clientHeight,iw=Fw,ih=Fw*img.h/img.w;
+  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.fillStyle="#000";g.fillRect(0,0,cv.width,cv.height);g.setTransform(cv.width/Fw,0,0,cv.height/Fh,0,0);
+  const sm=new DOMMatrix(getComputedStyle($("shk")).transform),cm=new DOMMatrix(getComputedStyle($("cam")).transform);
+  g.translate(Fw/2,Fh/2);g.transform(sm.a,sm.b,sm.c,sm.d,sm.e,sm.f);g.translate(-Fw/2,-Fh/2);g.transform(cm.a,cm.b,cm.c,cm.d,cm.e,cm.f);
+  g.drawImage($("im"),0,0,iw,ih);
+  for(const id of ["o1","o2"]){const op=+getComputedStyle($(id)).opacity,b=OV[id];if(op>.01){g.save();g.globalAlpha=op;g.fillStyle="#000";g.beginPath();g.rect(-3*iw,-3*ih,7*iw,7*ih);if(b)g.rect(b[0]*iw,b[1]*ih,b[2]*iw,b[3]*ih);g.fill("evenodd");g.restore()}}
+  for(const el of $("fl").children){const x=parseFloat(el.style.left)/100*iw,y=parseFloat(el.style.top)/100*ih;
+    if(el.classList.contains("bb"))bub(g,el.textContent,x,y,iw);else{g.font=`${iw*.05}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign="center";g.textBaseline="middle";g.fillText(el.textContent,x,y)}}
+  g.setTransform(1,0,0,1,0,0);const fo=+getComputedStyle($("fh")).opacity;if(fo>.01){g.fillStyle=`rgba(255,255,255,${fo})`;g.fillRect(0,0,cv.width,cv.height)}
+  REC.raf=requestAnimationFrame(draw)}
+function cancelRec(){if(!REC)return;REC.cancel=true;stopAll();if(REC.mr.state!=="inactive")REC.mr.stop()}
+$("vb").onclick=async()=>{if(rdy()<sc.length){$("vst").textContent="أنشئ الصوت أولًا بزر «إنشاء الصوت» ليحتوي الفيديو على صوت.";return}
+  if(typeof MediaRecorder==="undefined"){$("vst").textContent="هذا المتصفح لا يدعم تسجيل الفيديو، جرّب Chrome.";return}
+  const lg=+$("vres").value;let W=ASP>=1?lg:Math.round(lg*ASP),H=ASP>=1?Math.round(lg/ASP):lg;W-=W%2;H-=H%2;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d"),ctx=new(window.AudioContext||window.webkitAudioContext)(),dst=ctx.createMediaStreamDestination();await ctx.resume();
+  const st=cv.captureStream(30);dst.stream.getAudioTracks().forEach(t=>st.addTrack(t));
+  const mt=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"].find(t=>MediaRecorder.isTypeSupported(t)),mr=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:6e6}:{videoBitsPerSecond:6e6}),R={ctx,dst,mr,ch:[],cv,g,raf:0,mt,cancel:false};
+  mr.ondataavailable=e=>{if(e.data.size)R.ch.push(e.data)};
+  mr.onstop=()=>{cancelAnimationFrame(R.raf);try{ctx.close()}catch(e){}REC=null;stopAll();playing=false;$("pp").textContent="▶ تشغيل";lock(false);updGa();
+    if(R.cancel){$("vst").textContent="أُلغي التسجيل.";return}
+    const ext=/mp4/.test(mt||"")?"mp4":"webm",u=URL.createObjectURL(new Blob(R.ch,{type:mt||"video/webm"})),nm="story-"+(title||"video").replace(/[^\w\u0600-\u06FF]+/g,"-")+"."+ext;
+    $("vst").innerHTML=`تم إنشاء الفيديو ✅ (${W}×${H}) <a href="${u}" download="${nm}" id="vdl">⬇ تحميل الفيديو</a>`;$("vdl").click()};
+  REC=R;lock(true);$("pp").textContent="⏹ إلغاء التسجيل";playing=true;camTo(null,0);void $("cam").offsetWidth;mr.start(1000);draw();show(0)};
 
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
