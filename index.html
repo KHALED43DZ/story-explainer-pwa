@@ -17,6 +17,7 @@
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.6}
 main{max-width:860px;margin:0 auto;padding:16px}
+.ver{display:inline-block;background:var(--acc);color:#fff;font-weight:800;font-size:.85rem;border-radius:999px;padding:2px 14px;margin-bottom:4px}
 h1{font-size:1.4rem;margin:4px 0 2px}h3{margin:18px 0 8px;font-size:1rem}
 .sub{margin:0 0 12px;color:var(--mute);font-size:.9rem}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
@@ -50,7 +51,8 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 </head>
 <body>
 <main>
-<h1>📖 شارح القصص بالدارجة <small style="font-size:.7rem;color:var(--mute)">v1.0</small></h1>
+<div class="ver">الإصدار 1.2</div>
+<h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
 
 <section id="up" class="card">
@@ -60,7 +62,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
     <div class="w"><label class="l" for="ttl">عنوان القصة (اختياري)</label><input id="ttl"></div>
     <div><label class="l" for="gen">نوع القصة</label><select id="gen"><option>مغامرة وتشويق</option><option>قصة تاريخية</option><option>قصة بقيم وأخلاق</option><option>مرح وفكاهة</option><option>خيال وسحر</option></select></div>
     <div><label class="l" for="age">الفئة</label><select id="age"><option>أطفال من 5 إلى 8 سنوات</option><option>أطفال من 9 إلى 12 سنة</option><option>مراهقون وكبار</option></select></div>
-    <div><label class="l" for="ord">ترتيب القراءة</label><select id="ord"><option value="r">من اليمين إلى اليسار</option><option value="l">من اليسار إلى اليمين</option></select></div>
+    <div><label class="l" for="ord">ترتيب القراءة</label><select id="ord"><option value="n">حسب الأرقام المكتوبة تحت المشاهد</option><option value="r">من اليمين إلى اليسار</option><option value="l">من اليسار إلى اليمين</option></select></div>
     <div><label class="l" for="cnt">عدد المشاهد (اتركه فارغًا للكشف التلقائي)</label><input id="cnt" inputmode="numeric" placeholder="مثال: 12"></div>
     <div><label class="l" for="sty">نبرة السرد</label><select id="sty"><option>هادئة</option><option selected>متوسطة الحماس</option><option>حماسية ومشوّقة</option></select></div>
     <div><label class="l" for="len">طول التعليق</label><select id="len"><option value="جملتان">مختصر</option><option value="3 إلى 4 جمل" selected>متوسط</option><option value="5 إلى 6 جمل">مفصّل</option></select></div>
@@ -107,22 +109,22 @@ async function fetchT(u,o,ms){const c=new AbortController(),t=setTimeout(()=>c.a
 async function useKeys(list,fn,st=0){if(!list.length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");let last;for(let n=0;n<list.length;n++){try{return await fn(list[(st+n)%list.length])}catch(e){last=e;if(!e.retry)throw e}}throw last}
 function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<a)throw new Error("ردّ غير صالح");t=t.slice(a,b+1);try{return JSON.parse(t)}catch(e){return JSON.parse(t.replace(/,\s*([}\]])/g,"$1"))}}
 const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-async function llm(prompt){const im=await b64(img.blob);let last;
+async function llm(prompt){const im=await b64(img.sm||img.blob);let last;
   for(let at=0;at<2;at++){try{return await useKeys(keys("kt"),async k=>{let t;
     if(!k.startsWith("sk-ant-")){
-      const r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+($("tm").value.trim()||"gemini-3.8-flash")+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},120000);
+      const r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+($("tm").value.trim()||"gemini-3.8-flash")+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
       const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من Gemini");
       t=((d.candidates||[{}])[0].content||{parts:[]}).parts.map(p=>p.text||"").join("")
     }else{
-      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im}},{type:"text",text:prompt}]}]})},150000);
+      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im}},{type:"text",text:prompt}]}]})},300000);
       const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من الخادم");t=d.content.map(c=>c.text||"").join("")}
-    return parseJ(t)})}catch(e){last=e;if(e.retry)throw e}}
+    try{return parseJ(t)}catch(e){e.parse=1;throw e}})}catch(e){last=e;if(!e.parse)throw e}}
   throw new Error("ردّ النموذج غير صالح: "+last.message+" — أعد المحاولة.")}
 
 // ---- رفع الصورة ----
 $("f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();
   im.onload=()=>{const k=Math.min(1,3000/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
-    c.toBlob(b=>{img={blob:b,url:URL.createObjectURL(b),w:c.width,h:c.height};$("th").src=img.url;$("th").classList.remove("hide");$("go").disabled=false},"image/jpeg",.9)};
+    c.toBlob(b=>{img={blob:b,url:URL.createObjectURL(b),w:c.width,h:c.height};$("th").src=img.url;$("th").classList.remove("hide");const k2=Math.min(1,1600/Math.max(c.width,c.height)),c2=document.createElement("canvas");c2.width=Math.round(c.width*k2);c2.height=Math.round(c.height*k2);c2.getContext("2d").drawImage(c,0,0,c2.width,c2.height);c2.toBlob(sb=>{img.sm=sb;$("go").disabled=false},"image/jpeg",.85)},"image/jpeg",.9)};
   im.onerror=()=>{$("msg").textContent="تعذّر قراءة الصورة."};im.src=u};
 
 // ---- تحليل القصة ----
@@ -130,7 +132,7 @@ const ok=b=>{if(!Array.isArray(b)||b.length!==4||!b.every(n=>typeof n==="number"
 $("go").onclick=async()=>{$("msg").textContent="";$("go").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("st").textContent="⏳ جارٍ تحليل القصة... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("st").textContent="⏳ جارٍ تحليل القصة...";
   try{const n=$("cnt").value.replace(/\D/g,""),T=$("ttl").value.trim(),M=$("sum").value.trim();
     const p=`أنت كاتب قصص ومعلّق محترف للأطفال بالدارجة الجزائرية. الصورة المرفقة صفحة واحدة تضم مشاهد مصورة لقصة مرتبة في شبكة، وتحت كل مشهد شرح قصير مكتوب.
-${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك."} ترتيب القراءة: ${$("ord").value==="r"?"من اليمين إلى اليسار":"من اليسار إلى اليمين"} ثم الأسطر من الأعلى إلى الأسفل.
+${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك."} ترتيب القراءة: ${({n:"اتبع الأرقام المكتوبة تحت كل مشهد بدقة (قد يكون اتجاه الأسطر متعاكسًا، مثل صف من اليمين لليسار وصف من اليسار لليمين)، وإن لم توجد أرقام فمن اليمين إلى اليسار",r:"من اليمين إلى اليسار ثم الأسطر من الأعلى إلى الأسفل",l:"من اليسار إلى اليمين ثم الأسطر من الأعلى إلى الأسفل"})[$("ord").value]}.
 نوع القصة: ${$("gen").value}. الفئة: ${$("age").value}. نبرة السرد: ${$("sty").value}. طول تعليق كل مشهد: ${$("len").value}.${T?" عنوان القصة: "+T+".":""}${M?" ملاحظات صاحب القصة: "+M:""}
 لكل مشهد:
 (1) box: مستطيل الرسم وحده دون الشرح المكتوب تحته، [x,y,w,h] بأرقام من 0 إلى 1 نسبةً إلى الصورة كلها.
