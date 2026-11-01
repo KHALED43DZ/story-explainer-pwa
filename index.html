@@ -47,15 +47,17 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 #cap{margin-top:12px;min-height:5em;background:var(--cap);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1.08rem}
 #ed textarea{margin:6px 0;min-height:70px}
 .chk{display:flex;gap:6px;align-items:center;color:var(--mute)}.chk input{width:auto}
+.pi{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0}.pi button{padding:6px 12px}#pj{max-height:230px;overflow:auto}
 </style>
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 1.6</div>
+<div class="ver">الإصدار 1.7</div>
 <h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
 
 <section id="up" class="card">
+  <div id="pjc" class="hide"><h3 style="margin-top:0">📁 مشاريعي المحفوظة</h3><div id="pj"></div><hr style="border:0;border-top:1px solid var(--line);margin:12px 0"></div>
   <label class="drop" for="f">اضغط لرفع صورة القصة (كل المشاهد في صورة واحدة)<input id="f" type="file" accept="image/*" hidden></label>
   <img id="th" class="hide" alt="">
   <div class="fld">
@@ -151,12 +153,12 @@ ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك
     const j=await llm(p);title=T||j.title||"قصة";
     sc=(j.scenes||[]).filter(s=>s&&s.say).map(s=>({...s,box:ok(s.box),focus:ok(s.focus),tts:(typeof s.tts==="string"&&s.tts.trim())?s.tts:s.say,pause:Math.max(0,Math.min(3,+s.pause||0)),bubble:s.bubble&&s.bubble.text&&isFinite(+s.bubble.x)&&isFinite(+s.bubble.y)?{x:Math.max(.05,Math.min(.95,+s.bubble.x)),y:Math.max(.05,Math.min(.95,+s.bubble.y)),text:String(s.bubble.text)}:null,url:null,pcm:null,sig:null}));
     if(!sc.length)throw new Error("لم أستطع فهم القصة، جرّب صورة أوضح.");
-    start()}catch(e){$("msg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
+    PID="p"+Date.now();saveP(true);start()}catch(e){$("msg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
   clearInterval(iv);$("st").textContent="";$("go").disabled=false};
 
 // ---- العرض ----
 function start(){$("up").classList.add("hide");$("pl").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";$("vst").textContent="";
-  $("ed").innerHTML="";sc.forEach((s,i)=>{const t=document.createElement("textarea");t.value=s.say;t.oninput=()=>{s.say=s.tts=t.value;updGa()};const l=document.createElement("label");l.className="l";l.textContent="المشهد "+(i+1);$("ed").append(l,t)});
+  $("ed").innerHTML="";sc.forEach((s,i)=>{const t=document.createElement("textarea");t.value=s.say;t.oninput=()=>{s.say=s.tts=t.value;updGa();saveP()};const l=document.createElement("label");l.className="l";l.textContent="المشهد "+(i+1);$("ed").append(l,t)});
   $("im").src=img.url;const ar=sc.filter(x=>x.box).map(x=>x.box[2]*img.w/(x.box[3]*img.h)).sort((a,b)=>a-b);ASP=Math.round(Math.max(.4,Math.min(2.5,ar.length?ar[ar.length>>1]:img.w/img.h))*100)/100;
   const F=$("frame");F.style.aspectRatio=ASP;F.style.width=`min(100%,${Math.round(72*ASP)}vh)`;F.style.margin="0 auto";camTo(null,0);updGa();requestAnimationFrame(()=>show(0))}
 function stopAll(){tok++;clearTimeout(tm);if(au){au.pause();au=null}try{speechSynthesis.cancel()}catch(e){}}
@@ -191,7 +193,7 @@ $("pp").onclick=()=>{if(REC){cancelRec();return}if(playing){playing=false;stopAl
 $("nx").onclick=()=>show(cur+1);$("pv").onclick=()=>show(cur-1);
 $("rs").onclick=()=>{playing=true;$("pp").textContent="⏸ إيقاف";show(0)};
 $("snd").onchange=()=>{if(cur>=0)show(cur)};
-$("nw").onclick=()=>{stopAll();$("pl").classList.add("hide");$("up").classList.remove("hide")};
+$("nw").onclick=()=>{stopAll();saveP(true);PID=null;img=null;sc=[];cur=-1;$("pl").classList.add("hide");$("up").classList.remove("hide");$("th").classList.add("hide");$("go").disabled=true;$("f").value="";$("msg").textContent="";listP()};
 $("fs").onclick=()=>{const f=$("frame");(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};
 addEventListener("resize",()=>{if(cur>=0&&img&&!$("pl").classList.contains("hide"))camTo(sc[cur]&&sc[cur].box,0)});
 
@@ -223,14 +225,35 @@ $("ga").onclick=async()=>{const ak=[...new Set(keys("ka").concat(keys("kt")).fil
   stopAll();playing=false;$("pp").textContent="▶ تشغيل";
   if(rdy()===sc.length){if(!confirm("الصوت جاهز بالكامل. إعادة إنشائه من جديد؟"))return;sc.forEach(s=>{s.url=s.pcm=s.sig=null})}
   const todo=[];sc.forEach((s,i)=>{if(!(s.url&&s.sig===sigOf(s)))todo.push(i)});let nx=0,done=0,err=null;$("ga").disabled=true;
-  const run=async w=>{while(!err&&nx<todo.length){const i=todo[nx++];try{await tts(sc[i],w)}catch(e){err=err||e;return}done++;$("vst").textContent=`جارٍ إنشاء الصوت... (${done}/${todo.length})`;updGa()}};
+  const run=async w=>{while(!err&&nx<todo.length){const i=todo[nx++];try{await tts(sc[i],w)}catch(e){err=err||e;return}done++;$("vst").textContent=`جارٍ إنشاء الصوت... (${done}/${todo.length})`;updGa();saveP()}};
   $("vst").textContent=`جارٍ إنشاء الصوت... (0/${todo.length})`;
   await Promise.all(Array.from({length:Math.min(3,ak.length)},(_,w)=>run(w)));
-  $("ga").disabled=false;updGa();
+  $("ga").disabled=false;updGa();saveP(true);
   $("vst").textContent=err?"توقّف الإنشاء: "+String(err.message||err).slice(0,140)+" — ما أُنجز محفوظ، اضغط «إكمال الصوت» لاحقًا.":"تم إنشاء الصوت ✅ اضغط «إعادة» لتشاهد القصة بصوتك."};
 $("da").onclick=()=>{const r=sc[0].rate,gap=s=>Math.round((.9+s.pause)*r),n=sc.reduce((a,s)=>a+s.pcm.length+gap(s),0),out=new Int16Array(n);let o=0;sc.forEach(s=>{out.set(s.pcm,o);o+=s.pcm.length+gap(s)});
   const a=document.createElement("a");a.href=URL.createObjectURL(wav(out,r));a.download="story-audio.wav";document.body.appendChild(a);a.click();a.remove()};
 
+
+
+// ---- حفظ المشاريع (IndexedDB) ----
+let PID=null,svT=null;
+const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("story-pwa",1);r.onupgradeneeded=()=>r.result.createObjectStore("p",{keyPath:"id"});r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+async function dbDo(mode,fn){const d=await idb();return new Promise((ok,no)=>{const t=d.transaction("p",mode),q=fn(t.objectStore("p"));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)})}
+function saveP(now){clearTimeout(svT);const go=async()=>{if(!PID||!img)return;
+  try{await dbDo("readwrite",st=>st.put({id:PID,title,ts:Date.now(),blob:img.blob,w:img.w,h:img.h,sc:sc.map(({url,...r})=>r)}));if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
+  catch(e){$("vst").textContent="تعذّر حفظ المشروع (ربما مساحة التخزين ممتلئة)."}};
+  if(now)return go();svT=setTimeout(go,800)}
+async function listP(){let a=[];try{a=await dbDo("readonly",st=>st.getAll())}catch(e){}
+  a.sort((x,y)=>y.ts-x.ts);$("pjc").classList.toggle("hide",!a.length);const box=$("pj");box.innerHTML="";
+  a.forEach(r=>{const n=r.sc.length,d=r.sc.filter(x=>x.pcm).length,el=document.createElement("div"),t=document.createElement("div"),b=document.createElement("b"),m=document.createElement("div"),bt=document.createElement("div"),o=document.createElement("button"),x=document.createElement("button");
+    el.className="pi";b.textContent=r.title||"قصة";m.className="sub";m.style.margin="0";m.textContent=`${n} مشاهد • الصوت ${d}/${n} ${d===n?"✅":"⏳ غير مكتمل"} • ${new Date(r.ts).toLocaleDateString("ar-DZ")}`;
+    o.textContent="فتح";o.onclick=()=>openP(r.id);x.textContent="🗑";x.className="g";x.setAttribute("aria-label","حذف");
+    x.onclick=async()=>{if(confirm("حذف هذا المشروع نهائيًا؟")){await dbDo("readwrite",st=>st.delete(r.id));listP()}};
+    t.append(b,m);bt.style.cssText="display:flex;gap:6px";bt.append(o,x);el.append(t,bt);box.append(el)})}
+async function openP(id){let r;try{r=await dbDo("readonly",st=>st.get(id))}catch(e){}
+  if(!r){$("msg").textContent="تعذّر فتح المشروع.";return}
+  stopAll();PID=id;title=r.title;img={blob:r.blob,url:URL.createObjectURL(r.blob),w:r.w,h:r.h};
+  sc=r.sc.map(x=>({...x,url:x.pcm?URL.createObjectURL(wav(x.pcm,x.rate)):null}));start()}
 
 // ---- تصدير الفيديو (بنفس أبعاد المشاهد) ----
 const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres"].forEach(i=>$(i).disabled=b);
@@ -263,6 +286,7 @@ $("vb").onclick=async()=>{if(rdy()<sc.length){$("vst").textContent="أنشئ ا�
     $("vst").innerHTML=`تم إنشاء الفيديو ✅ (${W}×${H}) <a href="${u}" download="${nm}" id="vdl">⬇ تحميل الفيديو</a>`;$("vdl").click()};
   REC=R;lock(true);$("pp").textContent="⏹ إلغاء التسجيل";playing=true;camTo(null,0);void $("cam").offsetWidth;mr.start(1000);draw();show(0)};
 
+listP();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
 </body>
