@@ -53,9 +53,9 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 2.0</div>
+<div class="ver">الإصدار 2.1</div>
 <h1>📖 شارح القصص بالدارجة</h1>
-<p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
+<p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
 <section id="up" class="card">
   <button id="ns" style="width:100%;font-size:1.05rem;padding:14px;margin-bottom:12px">✍️ قصة جديدة في الاستوديو</button>
@@ -128,7 +128,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
   <input id="tm" dir="ltr" placeholder="نموذج التحليل (الافتراضي: gemini-3.8-flash)" style="margin-bottom:8px">
   <input id="tm2" dir="ltr" placeholder="نموذج تحليل بديل عند الازدحام (اختياري)" style="margin-bottom:8px">
   <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-3.8-flash-tts)" style="margin-bottom:8px">
-  <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option></select>
+  <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option><option>Callirrhoe</option><option>Autonoe</option><option>Enceladus</option><option>Iapetus</option><option>Umbriel</option><option>Algieba</option><option>Despina</option><option>Erinome</option><option>Algenib</option><option>Rasalgethi</option><option>Laomedeia</option><option>Achernar</option><option>Alnilam</option><option>Schedar</option><option>Gacrux</option><option>Pulcherrima</option><option>Achird</option><option>Zubenelgenubi</option><option>Vindemiatrix</option><option>Sadachbia</option><option>Sadaltager</option><option>Sulafat</option></select>
   <div class="row"><button id="sb" type="button">← رجوع</button></div>
 </section>
 
@@ -146,7 +146,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const keys=k=>$(k).value.split(/\s+/).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
-["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});
+["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;
 $("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
 $("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
 
@@ -242,10 +242,10 @@ $("fs").onclick=()=>{const f=$("frame");(f.requestFullscreen||f.webkitRequestFul
 addEventListener("resize",()=>{if(cur>=0&&img&&!$("pl").classList.contains("hide"))camTo(sc[cur]&&sc[cur].box,0)});
 
 // ---- الصوت ----
-const modelT=()=>$("tmt").value.trim()||"gemini-3.8-flash-tts",sigOf=s=>(s.tts||s.say)+"|"+modelT()+"|"+$("gv").value;
+const voice=()=>$("gv").value||"Kore",modelT=()=>$("tmt").value.trim()||"gemini-3.8-flash-tts",sigOf=s=>(s.tts||s.say)+"|"+modelT()+"|"+voice();
 function wav(pcm,rate){const n=pcm.length,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,t)=>[...t].forEach((c,k)=>v.setUint8(o+k,c.charCodeAt(0)));
   w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);new Int16Array(b,44).set(pcm);return new Blob([b],{type:"audio/wav"})}
-async function tts(s,k0){const txt=s.tts||s.say,v=$("gv").value,ak=[...new Set(keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-")))],
+async function tts(s,k0){const txt=s.tts||s.say,v=voice(),ak=[...new Set(keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-")))],
   sty="Read as a warm, expressive storyteller for children in Algerian Arabic (Darija): natural pauses, a livelier voice for dialogue, a hushed voice for suspense. Keep French words as they are.";
   const p=await useKeys(ak,async k=>{let msg="";
     for(const m of [...new Set([modelT(),"gemini-3.1-flash-tts-preview"])]){
