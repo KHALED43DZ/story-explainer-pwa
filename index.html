@@ -48,16 +48,19 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 #ed textarea{margin:6px 0;min-height:70px}
 .chk{display:flex;gap:6px;align-items:center;color:var(--mute)}.chk input{width:auto}
 .pi{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0}.pi button{padding:6px 12px}#pj{max-height:230px;overflow:auto}
+button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{display:inline-block;text-decoration:none;border-radius:10px;padding:10px 16px;border:1px solid var(--line);color:var(--ink)}#p2 textarea,#p1 textarea{margin:4px 0}
 </style>
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 1.7</div>
+<div class="ver">الإصدار 2.0</div>
 <h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">ارفع صورة واحدة تضم مشاهد القصة وتحت كل مشهد شرح قصير، وسيحلّلها التطبيق وينتقل بين المشاهد مع مؤثرات وسرد بالدارجة.</p>
 
 <section id="up" class="card">
+  <button id="ns" style="width:100%;font-size:1.05rem;padding:14px;margin-bottom:12px">✍️ قصة جديدة في الاستوديو</button>
   <div id="pjc" class="hide"><h3 style="margin-top:0">📁 مشاريعي المحفوظة</h3><div id="pj"></div><hr style="border:0;border-top:1px solid var(--line);margin:12px 0"></div>
+  <details id="old"><summary style="cursor:pointer;color:var(--mute)">🖼 لدي صورة قصة جاهزة (رفع صورة واحدة تضم المشاهد)</summary>
   <label class="drop" for="f">اضغط لرفع صورة القصة (كل المشاهد في صورة واحدة)<input id="f" type="file" accept="image/*" hidden></label>
   <img id="th" class="hide" alt="">
   <div class="fld">
@@ -72,6 +75,47 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
   </div>
   <div class="row"><button id="go" disabled>✨ إنشاء السرد</button><button class="g" id="gear" type="button">⚙️ الإعدادات</button><span id="st"></span></div>
   <div id="msg"></div>
+  </details>
+</section>
+
+<section id="sd" class="hide">
+ <div class="card">
+  <div class="row" style="margin-top:0"><button class="g" id="sh">🏠</button><button class="g" id="t1">① القصة</button><button class="g" id="t2">② البرومبتات والصور</button><button class="g" id="t3">③ الفيديو</button></div>
+  <div id="p1">
+   <h3>✍️ اكتب فكرة القصة</h3>
+   <textarea id="idea" rows="5" placeholder="مثال: ولد اسمه أنس يجد جروًا ضائعًا في الحديقة ويساعده في العودة إلى صاحبه..."></textarea>
+   <div class="fld">
+    <div><label class="l" for="sgen">نوع القصة</label><select id="sgen"><option>مغامرة وتشويق</option><option>قصة تاريخية</option><option>قصة بقيم وأخلاق</option><option>مرح وفكاهة</option><option>خيال وسحر</option></select></div>
+    <div><label class="l" for="sage">الفئة</label><select id="sage"><option>أطفال من 5 إلى 8 سنوات</option><option>أطفال من 9 إلى 12 سنة</option><option>مراهقون وكبار</option></select></div>
+    <div><label class="l" for="ssty">نمط الرسم</label><select id="ssty"><option value="3D animated cartoon style like a modern animated children's film, soft lighting, vibrant colors">كرتون ثلاثي الأبعاد</option><option value="flat colorful 2D cartoon illustration with clean outlines">كرتون ثنائي الأبعاد</option><option value="soft watercolor children's picture book illustration">مائي لكتب الأطفال</option><option value="cinematic comic-book illustration with rich detail and dramatic lighting">كوميكس سينمائي</option><option value="realistic historical painting style with warm natural light">لوحة تاريخية واقعية</option></select></div>
+    <div><label class="l" for="srat">أبعاد الصور والفيديو</label><select id="srat"><option value="9:16">طولي 9:16 (تيك توك)</option><option value="1:1">مربع 1:1</option><option value="16:9">عرضي 16:9 (يوتيوب)</option><option value="3:4">طولي 3:4</option></select></div>
+   </div>
+   <div class="row"><button id="sw">✨ اكتب القصة والبرومبتات</button><span id="sst"></span></div><div id="smsg" style="color:#e11d48;margin-top:8px"></div>
+  </div>
+  <div id="p2" class="hide">
+   <label class="l" for="stt">عنوان القصة</label><input id="stt">
+   <label class="l" for="ssyn" style="margin-top:8px">ملخص القصة</label><textarea id="ssyn" rows="3"></textarea>
+   <h3>👥 الشخصيات الرئيسية</h3><div id="chl" class="sub" style="white-space:pre-wrap"></div>
+   <div class="card" style="margin:10px 0"><b>① برومبت صورة الشخصيات</b><p class="sub" style="margin:4px 0">أرسله أولًا في محادثة جديدة في Gemini، ثم ولّد المشاهد في نفس المحادثة ليثبت شكل الشخصيات.</p>
+    <textarea id="shp" rows="6" dir="ltr"></textarea>
+    <div class="row"><button id="cps">📋 نسخ</button><a class="btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">فتح Gemini</a></div></div>
+   <h3>🎞 ② برومبتات المشاهد</h3>
+   <p class="sub">يُضاف تلقائيًا عند النسخ: ثبات الشخصيات، النمط، الأبعاد، ومنع النصوص داخل الصورة.</p>
+   <div class="row" style="margin-top:0"><button class="g" id="bulk">📷 رفع كل الصور دفعة واحدة</button><input id="bk" type="file" accept="image/*" multiple hidden><span id="cnt2" class="sub"></span></div>
+   <div id="scs"></div>
+   <div class="row"><button id="g3">التالي: الفيديو ←</button></div>
+  </div>
+  <div id="p3" class="hide">
+   <h3>🎬 الفيديو التفاعلي</h3>
+   <div class="fld">
+    <div><label class="l" for="stn">نبرة السرد</label><select id="stn"><option>هادئة</option><option selected>متوسطة الحماس</option><option>حماسية ومشوّقة</option></select></div>
+    <div><label class="l" for="sln">طول التعليق</label><select id="sln"><option value="جملتان">مختصر</option><option value="3 إلى 4 جمل" selected>متوسط</option><option value="5 إلى 6 جمل">مفصّل</option></select></div>
+    <div class="w"><label class="l" for="snt">ملاحظات (اختياري)</label><textarea id="snt" rows="2"></textarea></div>
+   </div>
+   <div class="row"><button id="sa2">🎞 حلّل الصور وأنشئ السرد</button><button class="g hide" id="sop">▶ فتح الفيديو التفاعلي</button><span id="sst3"></span></div>
+   <div id="smsg3" style="color:#e11d48;margin-top:8px"></div><p id="sdn" class="sub"></p>
+  </div>
+ </div>
 </section>
 
 <section id="set" class="card hide">
@@ -92,8 +136,8 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
   <div id="frame"><div id="shk"><div id="cam"><img id="im" alt="القصة"><svg id="ov" viewBox="0 0 100 100" preserveAspectRatio="none"><path id="o1"/><path id="o2"/></svg><div id="fl"></div></div></div><div id="fh"></div><div id="badge"></div></div>
   <div id="bar"><i></i></div>
   <div id="cap" aria-live="polite"></div>
-  <div class="row"><button id="pp">⏸ إيقاف</button><button class="g" id="pv">السابق</button><button class="g" id="nx">التالي</button><button class="g" id="rs">إعادة</button><label class="chk"><input type="checkbox" id="snd" checked> صوت</label><button class="g" id="fs">⛶</button></div>
-  <div class="row"><button id="ga">🎙 إنشاء الصوت</button><button class="g" id="da" disabled>⬇ تحميل الصوت WAV</button><button id="vb">🎬 إنشاء الفيديو</button><select id="vres" style="width:auto"><option value="1280">جودة 720</option><option value="1920">جودة 1080</option></select><button class="g" id="nw">قصة جديدة</button></div>
+  <div class="row"><button id="pp">⏸ إيقاف</button><button class="g" id="pv">السابق</button><button class="g" id="nx">التالي</button><button class="g" id="rs">إعادة</button><label class="chk"><input type="checkbox" id="snd" checked> صوت</label><button class="g" id="fs">⛶</button><button class="g hide" id="bs">🛠 الاستوديو</button></div>
+  <div class="row"><button id="ga">🎙 إنشاء الصوت</button><button class="g" id="da" disabled>⬇ تحميل الصوت WAV</button><button id="vb">🎬 إنشاء الفيديو</button><select id="vres" style="width:auto"><option value="1280">جودة 720</option><option value="1920">جودة 1080</option></select><button class="g" id="nw">🏠 الرئيسية</button></div>
   <div id="vst"></div>
   <details class="card" style="margin-top:12px"><summary>✏️ تعديل نص كل مشهد قبل توليد الصوت</summary><div id="ed"></div></details>
 </section>
@@ -112,17 +156,17 @@ async function fetchT(u,o,ms){const c=new AbortController(),t=setTimeout(()=>c.a
 async function useKeys(list,fn,st=0){if(!list.length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");let last;for(let n=0;n<list.length;n++){try{return await fn(list[(st+n)%list.length])}catch(e){last=e;if(!e.retry)throw e}}throw last}
 function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<a)throw new Error("ردّ غير صالح");t=t.slice(a,b+1);try{return JSON.parse(t)}catch(e){return JSON.parse(t.replace(/,\s*([}\]])/g,"$1"))}}
 const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(",")[1]);f.readAsDataURL(b)});
-async function llm(prompt){const im=await b64(img.sm||img.blob);let last;
+async function llm(prompt,ims){const im=ims||[await b64(img.sm||img.blob)];let last;
   for(let at=0;at<2;at++){try{return await useKeys(keys("kt"),async k=>{let t;
     if(!k.startsWith("sk-ant-")){
       const m1=$("tm").value.trim()||"gemini-3.8-flash";let m2=$("tm2").value.trim(),r,d;
-      for(let a=0;a<5;a++){const m=(a>=2&&m2)?m2:m1;r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:"image/jpeg",data:im}},{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
+      for(let a=0;a<5;a++){const m=(a>=2&&m2)?m2:m1;r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[...im.map(d=>({inline_data:{mime_type:"image/jpeg",data:d}})),{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
         d=await r.json().catch(()=>({}));if(r.status===404&&m!==m1){m2="";continue}if(r.status!==503&&r.status!==429)break;
         $("st").textContent="⏳ الخادم مشغول، تتم إعادة المحاولة ("+(a+1)+"/5)...";await new Promise(z=>setTimeout(z,4000*(a+1)))}
       if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من Gemini");
       t=((d.candidates||[{}])[0].content||{parts:[]}).parts.map(p=>p.text||"").join("")
     }else{
-      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im}},{type:"text",text:prompt}]}]})},300000);
+      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[...im.map(d=>({type:"image",source:{type:"base64",media_type:"image/jpeg",data:d}})),{type:"text",text:prompt}]}]})},300000);
       const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من الخادم");t=d.content.map(c=>c.text||"").join("")}
     try{return parseJ(t)}catch(e){e.parse=1;throw e}})}catch(e){last=e;if(!e.parse)throw e}}
   throw new Error("ردّ النموذج غير صالح: "+last.message+" — أعد المحاولة.")}
@@ -157,17 +201,17 @@ ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك
   clearInterval(iv);$("st").textContent="";$("go").disabled=false};
 
 // ---- العرض ----
-function start(){$("up").classList.add("hide");$("pl").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";$("vst").textContent="";
+function start(){$("up").classList.add("hide");$("sd").classList.add("hide");$("bs").classList.toggle("hide",!ST);$("pl").classList.remove("hide");playing=true;$("pp").textContent="⏸ إيقاف";$("vst").textContent="";
   $("ed").innerHTML="";sc.forEach((s,i)=>{const t=document.createElement("textarea");t.value=s.say;t.oninput=()=>{s.say=s.tts=t.value;updGa();saveP()};const l=document.createElement("label");l.className="l";l.textContent="المشهد "+(i+1);$("ed").append(l,t)});
-  $("im").src=img.url;const ar=sc.filter(x=>x.box).map(x=>x.box[2]*img.w/(x.box[3]*img.h)).sort((a,b)=>a-b);ASP=Math.round(Math.max(.4,Math.min(2.5,ar.length?ar[ar.length>>1]:img.w/img.h))*100)/100;
+  $("im").src=img.url;const ar=sc.filter(x=>x.box).map(x=>x.box[2]*(x.im||img).w/(x.box[3]*(x.im||img).h)).sort((a,b)=>a-b);ASP=Math.round(Math.max(.4,Math.min(2.5,ar.length?ar[ar.length>>1]:img.w/img.h))*100)/100;
   const F=$("frame");F.style.aspectRatio=ASP;F.style.width=`min(100%,${Math.round(72*ASP)}vh)`;F.style.margin="0 auto";camTo(null,0);updGa();requestAnimationFrame(()=>show(0))}
 function stopAll(){tok++;clearTimeout(tm);if(au){au.pause();au=null}try{speechSynthesis.cancel()}catch(e){}}
-function camTo(b,dur){const F=$("frame"),W=F.clientWidth,H=F.clientHeight,iw=W,ih=W*img.h/img.w;let s,cx=.5,cy=.5;
-  if(b){s=Math.max(.3,Math.min(8,.9*W/(b[2]*iw),.9*H/(b[3]*ih)));cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}else s=Math.min(W/iw,H/ih);
+function camTo(b,dur){const F=$("frame"),W=F.clientWidth,H=F.clientHeight,iw=W,I=(sc[cur]&&sc[cur].im)||img,ih=W*I.h/I.w;let s,cx=.5,cy=.5;
+  if(b){const f=b[2]>=.99&&b[3]>=.99?1:.9;s=Math.max(.3,Math.min(8,f*W/(b[2]*iw),f*H/(b[3]*ih)));cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}else s=Math.min(W/iw,H/ih);
   const c=$("cam");c.style.width=iw+"px";c.style.height=ih+"px";$("fl").style.setProperty("--iw",iw+"px");
   c.style.transition=dur?`transform ${dur}s cubic-bezier(.45,0,.2,1)`:"none";c.style.transform=`translate(${W/2-cx*iw*s}px,${H/2-cy*ih*s}px) scale(${s})`}
 const OV={};function setOv(id,b,op){OV[id]=b;const hole=b?`M${b[0]*100} ${b[1]*100}h${b[2]*100}v${b[3]*100}h${-b[2]*100}Z`:"";const p=$(id);p.setAttribute("d","M-300 -300H400V400H-300Z"+hole);p.style.opacity=op}
-function show(i){stopAll();const my=tok;if(i<0)i=0;if(i>=sc.length){finish();return}cur=i;
+function show(i){stopAll();const my=tok;if(i<0)i=0;if(i>=sc.length){finish();return}cur=i;if(sc[i].im&&$("im").dataset.u!==sc[i].im.url){$("im").dataset.u=sc[i].im.url;$("im").src=sc[i].im.url;camTo(null,0);void $("cam").offsetWidth}
   const s=sc[i],b=s.box||[0,0,1,1],f=s.focus,fx=s.fx||"zoom",at=(ms,fn)=>{setTimeout(()=>{if(my===tok)fn()},ms)};
   setOv("o1",b,.94);setOv("o2",f,0);$("fl").innerHTML="";$("shk").classList.remove("shake");$("fh").classList.remove("on");
   if(fx==="reveal"&&f){camTo(f,1.2);setOv("o2",f,.97);at(3400,()=>{setOv("o2",f,0);camTo(b,1.6)})}
@@ -239,30 +283,34 @@ $("da").onclick=()=>{const r=sc[0].rate,gap=s=>Math.round((.9+s.pause)*r),n=sc.r
 let PID=null,svT=null;
 const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("story-pwa",1);r.onupgradeneeded=()=>r.result.createObjectStore("p",{keyPath:"id"});r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 async function dbDo(mode,fn){const d=await idb();return new Promise((ok,no)=>{const t=d.transaction("p",mode),q=fn(t.objectStore("p"));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)})}
-function saveP(now){clearTimeout(svT);const go=async()=>{if(!PID||!img)return;
-  try{await dbDo("readwrite",st=>st.put({id:PID,title,ts:Date.now(),blob:img.blob,w:img.w,h:img.h,sc:sc.map(({url,...r})=>r)}));if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
+function saveP(now){clearTimeout(svT);const go=async()=>{if(!PID||(!img&&!ST))return;
+  const rec=ST?{id:PID,mode:"s",title,ts:Date.now(),ST:{...ST,scenes:ST.scenes.map(({im,...r})=>r)},sc:sc.map(({url,im,...r})=>r)}:{id:PID,title,ts:Date.now(),blob:img.blob,w:img.w,h:img.h,sc:sc.map(({url,...r})=>r)};
+  try{await dbDo("readwrite",st=>st.put(rec));if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
   catch(e){$("vst").textContent="تعذّر حفظ المشروع (ربما مساحة التخزين ممتلئة)."}};
   if(now)return go();svT=setTimeout(go,800)}
 async function listP(){let a=[];try{a=await dbDo("readonly",st=>st.getAll())}catch(e){}
   a.sort((x,y)=>y.ts-x.ts);$("pjc").classList.toggle("hide",!a.length);const box=$("pj");box.innerHTML="";
-  a.forEach(r=>{const n=r.sc.length,d=r.sc.filter(x=>x.pcm).length,el=document.createElement("div"),t=document.createElement("div"),b=document.createElement("b"),m=document.createElement("div"),bt=document.createElement("div"),o=document.createElement("button"),x=document.createElement("button");
-    el.className="pi";b.textContent=r.title||"قصة";m.className="sub";m.style.margin="0";m.textContent=`${n} مشاهد • الصوت ${d}/${n} ${d===n?"✅":"⏳ غير مكتمل"} • ${new Date(r.ts).toLocaleDateString("ar-DZ")}`;
+  a.forEach(r=>{const n=r.mode==="s"?(r.ST.scenes.length||8):r.sc.length,d=r.sc.filter(x=>x.pcm).length,el=document.createElement("div"),t=document.createElement("div"),b=document.createElement("b"),m=document.createElement("div"),bt=document.createElement("div"),o=document.createElement("button"),x=document.createElement("button");
+    el.className="pi";b.textContent=r.title||"قصة";m.className="sub";m.style.margin="0";m.textContent=`${r.mode==="s"?"✍️ استوديو • الصور "+r.ST.scenes.filter(q=>q.blob).length+"/"+n+" • ":n+" مشاهد • "} الصوت ${d}/${n} ${d===n?"✅":"⏳ غير مكتمل"} • ${new Date(r.ts).toLocaleDateString("ar-DZ")}`;
     o.textContent="فتح";o.onclick=()=>openP(r.id);x.textContent="🗑";x.className="g";x.setAttribute("aria-label","حذف");
     x.onclick=async()=>{if(confirm("حذف هذا المشروع نهائيًا؟")){await dbDo("readwrite",st=>st.delete(r.id));listP()}};
     t.append(b,m);bt.style.cssText="display:flex;gap:6px";bt.append(o,x);el.append(t,bt);box.append(el)})}
 async function openP(id){let r;try{r=await dbDo("readonly",st=>st.get(id))}catch(e){}
   if(!r){$("msg").textContent="تعذّر فتح المشروع.";return}
-  stopAll();PID=id;title=r.title;img={blob:r.blob,url:URL.createObjectURL(r.blob),w:r.w,h:r.h};
+  stopAll();PID=id;title=r.title;
+  if(r.mode==="s"){ST=r.ST;ST.scenes.forEach(x=>{if(x.blob)x.im={url:URL.createObjectURL(x.blob),w:x.w,h:x.h}});img=ST.scenes[0]&&ST.scenes[0].im||null;
+    sc=r.sc.map(x=>({...x,im:ST.scenes[x.i]&&ST.scenes[x.i].im,url:x.pcm?URL.createObjectURL(wav(x.pcm,x.rate)):null}));showStudio(sc.length?3:ST.chars?2:1);return}
+  ST=null;img={blob:r.blob,url:URL.createObjectURL(r.blob),w:r.w,h:r.h};
   sc=r.sc.map(x=>({...x,url:x.pcm?URL.createObjectURL(wav(x.pcm,x.rate)):null}));start()}
 
 // ---- تصدير الفيديو (بنفس أبعاد المشاهد) ----
-const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres"].forEach(i=>$(i).disabled=b);
+const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres","bs"].forEach(i=>$(i).disabled=b);
 function bub(g,t,x,y,iw){const fs=iw*.022,mw=iw*.28;g.font=`800 ${fs}px Cairo,Tahoma,sans-serif`;g.direction="rtl";g.textAlign="center";g.textBaseline="middle";
   const ls=[];let l="";for(const w of t.split(/\s+/)){const c=l?l+" "+w:w;if(g.measureText(c).width>mw&&l){ls.push(l);l=w}else l=c}ls.push(l);
   const lh=fs*1.35,w=Math.max(...ls.map(q=>g.measureText(q).width))+fs*1.2,h=ls.length*lh+fs*.6;
   g.fillStyle="#fff";g.strokeStyle="#111";g.lineWidth=iw*.003;g.beginPath();g.roundRect?g.roundRect(x-w/2,y-h/2,w,h,iw*.02):g.rect(x-w/2,y-h/2,w,h);g.fill();g.stroke();
   g.fillStyle="#111";ls.forEach((q,i)=>g.fillText(q,x,y-h/2+fs*.3+lh*(i+.5)))}
-function draw(){if(!REC)return;const{g,cv}=REC,F=$("frame"),Fw=F.clientWidth,Fh=F.clientHeight,iw=Fw,ih=Fw*img.h/img.w;
+function draw(){if(!REC)return;const{g,cv}=REC,F=$("frame"),Fw=F.clientWidth,Fh=F.clientHeight,iw=Fw,I=(sc[cur]&&sc[cur].im)||img,ih=Fw*I.h/I.w;
   g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.fillStyle="#000";g.fillRect(0,0,cv.width,cv.height);g.setTransform(cv.width/Fw,0,0,cv.height/Fh,0,0);
   const sm=new DOMMatrix(getComputedStyle($("shk")).transform),cm=new DOMMatrix(getComputedStyle($("cam")).transform);
   g.translate(Fw/2,Fh/2);g.transform(sm.a,sm.b,sm.c,sm.d,sm.e,sm.f);g.translate(-Fw/2,-Fh/2);g.transform(cm.a,cm.b,cm.c,cm.d,cm.e,cm.f);
@@ -285,6 +333,81 @@ $("vb").onclick=async()=>{if(rdy()<sc.length){$("vst").textContent="أنشئ ا�
     const ext=/mp4/.test(mt||"")?"mp4":"webm",u=URL.createObjectURL(new Blob(R.ch,{type:mt||"video/webm"})),nm="story-"+(title||"video").replace(/[^\w\u0600-\u06FF]+/g,"-")+"."+ext;
     $("vst").innerHTML=`تم إنشاء الفيديو ✅ (${W}×${H}) <a href="${u}" download="${nm}" id="vdl">⬇ تحميل الفيديو</a>`;$("vdl").click()};
   REC=R;lock(true);$("pp").textContent="⏹ إلغاء التسجيل";playing=true;camTo(null,0);void $("cam").offsetWidth;mr.start(1000);draw();show(0)};
+
+
+// ---- الاستوديو ----
+let ST=null;
+const sheetP=()=>`Character reference sheet on a plain pure white background with no scenery. Show the main characters side by side, each one full body from head to toe in a neutral standing pose facing the viewer, together with a close-up face portrait of the same character clearly showing the face. Write each character's name clearly under them in Arabic: ${ST.chars.map(c=>c.name).join(" / ")}. Art style: ${ST.style}. Simple clean design that is easy to reproduce consistently. Aspect ratio 16:9.\nCharacters:\n${ST.chars.map((c,i)=>`${i+1}) ${c.name}: ${c.en}`).join("\n")}`;
+const sceneP=i=>`Scene ${i+1} of ${ST.scenes.length}. Use exactly the same characters as in the character reference sheet from this conversation: identical faces, hair, outfits and colors. Art style: ${ST.style}. Aspect ratio ${ST.ratio}. Do not write any text, speech bubbles, captions or watermarks in the image.\n${ST.scenes[i].en}`;
+async function cp(t,btn){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}const o=btn.textContent;btn.textContent="✅ تم النسخ";setTimeout(()=>btn.textContent=o,1500)}
+function loadFile(f){return new Promise((res,no)=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const k=Math.min(1,2400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>res({blob:b,w:c.width,h:c.height}),"image/jpeg",.9)};im.onerror=()=>no(new Error("تعذّر قراءة الصورة."));im.src=u})}
+function small(bl,mx){return new Promise((res,no)=>{const u=URL.createObjectURL(bl),im=new Image();im.onload=()=>{const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(res,"image/jpeg",.82)};im.onerror=()=>no(new Error("تعذّرت قراءة صورة."));im.src=u})}
+function keep1(){if(!ST||$("p1").classList.contains("hide"))return;ST.idea=$("idea").value;ST.genre=$("sgen").value;ST.age=$("sage").value;ST.style=$("ssty").value;ST.ratio=$("srat").value}
+function showStudio(n){stopAll();["up","pl"].forEach(i=>$(i).classList.add("hide"));$("sd").classList.remove("hide");
+  [1,2,3].forEach(k=>{$("p"+k).classList.toggle("hide",k!==n);$("t"+k).classList.toggle("on",k===n)});
+  $("t2").disabled=!ST.chars;$("t3").disabled=!(ST.scenes.length&&ST.scenes.every(x=>x.im));
+  if(n===1){$("idea").value=ST.idea||"";if(ST.genre)$("sgen").value=ST.genre;if(ST.age)$("sage").value=ST.age;if(ST.style)$("ssty").value=ST.style;if(ST.ratio)$("srat").value=ST.ratio}
+  if(n===2)renderS2();
+  if(n===3){if(ST.tone)$("stn").value=ST.tone;if(ST.len)$("sln").value=ST.len;$("snt").value=ST.note||"";$("sop").classList.toggle("hide",!sc.length);$("sdn").textContent=ST.stale?"غيّرت صورة بعد التحليل؛ أعد التحليل لتحديث التقريب والفقاعات.":"";$("smsg3").textContent=""}
+  scrollTo(0,0)}
+function renderS2(){$("stt").value=title||"";$("ssyn").value=ST.synopsis||"";$("chl").textContent=ST.chars.map(c=>"• "+c.name+": "+c.ar).join("\n");$("shp").value=ST.sheet||"";
+  const box=$("scs");box.innerHTML="";
+  ST.scenes.forEach((s,i)=>{const c=document.createElement("div"),b=document.createElement("b"),p=document.createElement("p"),ta=document.createElement("textarea"),r=document.createElement("div"),cb=document.createElement("button"),ub=document.createElement("button"),fi=document.createElement("input"),th=document.createElement("img");
+    c.className="card";c.style.margin="8px 0";b.textContent=`مشهد ${i+1}${s.title?" — "+s.title:""}`;p.className="sub";p.style.margin="4px 0";p.textContent=s.ar;
+    ta.rows=4;ta.dir="ltr";ta.value=s.en;ta.oninput=()=>{s.en=ta.value;saveP()};
+    r.className="row";cb.textContent="📋 نسخ البرومبت";cb.onclick=()=>cp(sceneP(i),cb);ub.className="g";ub.textContent=s.im?"🔄 استبدال الصورة":"📷 رفع الصورة";
+    fi.type="file";fi.accept="image/*";fi.hidden=true;ub.onclick=()=>fi.click();fi.onchange=()=>{if(fi.files[0])setImg(i,fi.files[0])};
+    th.style.cssText="max-height:150px;max-width:100%;border-radius:8px;margin-top:8px;display:block";th.alt="";if(s.im)th.src=s.im.url;else th.classList.add("hide");
+    r.append(cb,ub,fi);c.append(b,p,ta,r,th);box.append(c)});
+  const k=ST.scenes.filter(x=>x.im).length;$("cnt2").textContent=`الصور: ${k}/${ST.scenes.length}`;$("g3").disabled=k<ST.scenes.length;$("t3").disabled=k<ST.scenes.length}
+async function setImg(i,f){try{const r=await loadFile(f),s=ST.scenes[i];if(s.im&&!sc[i])URL.revokeObjectURL(s.im.url);s.blob=r.blob;s.w=r.w;s.h=r.h;s.im={url:URL.createObjectURL(r.blob),w:r.w,h:r.h};if(sc[i]){sc[i].im=s.im;ST.stale=true}saveP();renderS2()}catch(e){alert(e.message)}}
+$("ns").onclick=()=>{PID="p"+Date.now();title="";sc=[];img=null;ST={scenes:[]};showStudio(1)};
+$("t1").onclick=()=>{keep1();showStudio(1)};$("t2").onclick=()=>{keep1();showStudio(2)};$("t3").onclick=()=>{keep1();showStudio(3)};$("g3").onclick=()=>showStudio(3);
+$("sh").onclick=()=>{keep1();goHome()};
+function goHome(){stopAll();saveP(true);PID=null;img=null;sc=[];cur=-1;ST=null;["pl","sd"].forEach(i=>$(i).classList.add("hide"));$("up").classList.remove("hide");$("th").classList.add("hide");$("go").disabled=true;$("f").value="";$("msg").textContent="";listP()}
+$("nw").onclick=goHome;
+$("bs").onclick=()=>{stopAll();saveP(true);$("pl").classList.add("hide");showStudio(3)};
+$("stt").oninput=()=>{title=$("stt").value;saveP()};$("ssyn").oninput=()=>{ST.synopsis=$("ssyn").value;saveP()};$("shp").oninput=()=>{ST.sheet=$("shp").value;saveP()};
+$("cps").onclick=()=>cp($("shp").value,$("cps"));
+$("bulk").onclick=()=>$("bk").click();
+$("bk").onchange=async e=>{const fs=[...e.target.files].sort((a,b)=>a.lastModified-b.lastModified).slice(0,ST.scenes.length);for(let i=0;i<fs.length;i++)await setImg(i,fs[i]);e.target.value=""};
+$("sw").onclick=async()=>{keep1();$("smsg").textContent="";if(ST.idea.trim().length<15){$("smsg").textContent="اكتب ملخصًا أطول قليلًا للقصة.";return}
+  if(ST.chars&&!confirm("سيُستبدل ما كتبه التطبيق من قصة وبرومبتات (الصور المرفوعة تبقى). متابعة؟"))return;
+  $("sw").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("sst").textContent="⏳ جارٍ الكتابة... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("sst").textContent="⏳ جارٍ الكتابة...";
+  try{const p=`أنت كاتب قصص أطفال ومخرج قصص مصورة. اكتب قصة قصيرة من 8 مشاهد بالضبط اعتمادًا على فكرة صاحبها، لها بداية وتصاعد وذروة وخاتمة واضحة.
+الفكرة: ${ST.idea}
+النوع: ${ST.genre}. الفئة: ${ST.age}. نمط الرسم: ${ST.style}.
+أعد JSON فقط بلا markdown: {"title":"عنوان بالعربية","synopsis":"ملخص بالعربية من 3 إلى 4 جمل","characters":[{"name":"الاسم بالعربية","ar":"وصف قصير بالعربية","en":"detailed English visual description for an image model: age, face, hair, skin tone, outfit with exact colors, accessories, distinctive features"}],"scenes":[{"title":"عنوان قصير بالعربية","ar":"وصف المشهد بالعربية","en":"English image prompt: location, time of day, lighting, what each named character is doing and their facial expression, camera angle. Mention each character by name followed by a short reminder of their look."}]}
+الشروط: من 1 إلى 3 شخصيات رئيسية فقط؛ 8 مشاهد بالضبط؛ أبقِ وصف كل شخصية ثابتًا بنفس الكلمات في كل المشاهد؛ لا عنف دموي ولا مشاهد مخيفة للصغار.`;
+    const j=await llm(p,[]);if(!Array.isArray(j.scenes)||j.scenes.length<4||!Array.isArray(j.characters)||!j.characters.length)throw new Error("لم تكتمل القصة، أعد المحاولة.");
+    const old=ST.scenes;title=String(j.title||"قصة");ST.synopsis=String(j.synopsis||"");
+    ST.chars=j.characters.slice(0,3).map(c=>({name:String(c.name||""),ar:String(c.ar||""),en:String(c.en||"")}));
+    ST.scenes=j.scenes.slice(0,8).map((x,i)=>({title:String(x.title||""),ar:String(x.ar||""),en:String(x.en||""),blob:old[i]&&old[i].blob,w:old[i]&&old[i].w,h:old[i]&&old[i].h,im:old[i]&&old[i].im}));
+    ST.sheet=sheetP();saveP(true);showStudio(2)}
+  catch(e){$("smsg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
+  clearInterval(iv);$("sst").textContent="";$("sw").disabled=false};
+$("sop").onclick=()=>{img=ST.scenes[0].im;start()};
+$("sa2").onclick=async()=>{ST.tone=$("stn").value;ST.len=$("sln").value;ST.note=$("snt").value.trim();$("smsg3").textContent="";
+  if(sc.length&&!confirm("إعادة التحليل ستستبدل السرد والصوت الحاليين. متابعة؟"))return;
+  $("sa2").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("sst3").textContent="⏳ جارٍ التحليل... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("sst3").textContent="⏳ جارٍ التحليل...";
+  try{const ims=[];for(const x of ST.scenes)ims.push(await b64(await small(x.blob,768)));const n=ST.scenes.length;
+    const p=`أنت كاتب ومعلّق قصص محترف للأطفال بالدارجة الجزائرية. الصور المرفقة هي مشاهد قصة بالترتيب (${n} صور، صورة لكل مشهد).
+عنوان القصة: ${title}. ملخصها: ${ST.synopsis}. الشخصيات: ${ST.chars.map(c=>c.name+" ("+c.ar+")").join("، ")}.
+وصف المشاهد بالترتيب: ${ST.scenes.map((x,i)=>(i+1)+") "+x.ar).join(" ")}
+الفئة: ${ST.age}. النوع: ${ST.genre}. نبرة السرد: ${ST.tone}. طول تعليق كل مشهد: ${ST.len}.${ST.note?" ملاحظات: "+ST.note:""}
+لكل صورة بالترتيب أعد:
+(1) say: تعليق الراوي بالدارجة الجزائرية الودودة، مبني على ما تراه في الصورة وعلى القصة، مع الحوار بين الشخصيات داخل السرد («قال له: ...»)، واربط المشاهد ببعضها، وليكن أول مشهد مشوّقًا وآخر مشهد خاتمة مؤثرة.
+(2) tts: النص نفسه مهيّأ للنطق: إملاء صوتي واضح للدارجة مع تشكيل خفيف للكلمات الملتبسة، الأرقام حروفًا، والكلمات الفرنسية بحروفها اللاتينية.
+(3) fx مؤثر يناسب الحدث، ونوّع بينها: zoom، shake (هزّة لزلزال أو انفجار أو خوف)، reveal (التركيز على جزء ثم كشف المشهد كاملًا)، spotlight (إبراز شخصية وتعتيم الباقي)، pan، flash (وميض)، none.
+(4) focus: مستطيل الشخصية أو الشيء المهم [x,y,w,h] بنسب هذه الصورة نفسها من 0 إلى 1، ضيق ومحكم؛ يلزم مع zoom وreveal وspotlight، وإلا null.
+(5) bubble اختياري: {"x":0.5,"y":0.3,"text":"..."} فقاعة قصيرة (حتى 5 كلمات) بالدارجة فوق الشخصية المتكلمة بنسب هذه الصورة، وإلا null.
+(6) emoji واحد يعبّر عن الإحساس أو "". (7) pause عدد صحيح من 0 إلى 2.
+أعد JSON فقط بلا markdown: {"scenes":[{"say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1}]} بعدد ${n} مشاهد وبنفس ترتيب الصور.`;
+    const j=await llm(p,ims),a=(j.scenes||[]).slice(0,n);if(a.length<n||a.some(x=>!x||!x.say))throw new Error("لم يكتمل التحليل لكل المشاهد، أعد المحاولة.");
+    sc=a.map((x,i)=>({...x,i,box:[0,0,1,1],im:ST.scenes[i].im,focus:ok(x.focus),tts:(typeof x.tts==="string"&&x.tts.trim())?x.tts:x.say,pause:Math.max(0,Math.min(3,+x.pause||0)),bubble:x.bubble&&x.bubble.text&&isFinite(+x.bubble.x)&&isFinite(+x.bubble.y)?{x:Math.max(.05,Math.min(.95,+x.bubble.x)),y:Math.max(.05,Math.min(.95,+x.bubble.y)),text:String(x.bubble.text)}:null,url:null,pcm:null,sig:null}));
+    ST.stale=false;saveP(true);img=ST.scenes[0].im;start()}
+  catch(e){$("smsg3").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
+  clearInterval(iv);$("sst3").textContent="";$("sa2").disabled=false};
 
 listP();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
