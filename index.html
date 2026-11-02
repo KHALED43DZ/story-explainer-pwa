@@ -50,12 +50,13 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 .pi{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:6px 0}.pi button{padding:6px 12px}#pj{max-height:230px;overflow:auto}
 button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{display:inline-block;text-decoration:none;border-radius:10px;padding:10px 16px;border:1px solid var(--line);color:var(--ink)}#p2 textarea,#p1 textarea{margin:4px 0}
 #cv0{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.hd h1{margin:4px 0 2px}#gear{white-space:nowrap;padding:8px 12px;font-size:.9rem}
 </style>
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 3.1</div>
-<h1>📖 شارح القصص بالدارجة</h1>
+<div class="hd"><div><div class="ver">الإصدار 3.2</div>
+<h1>📖 شارح القصص بالدارجة</h1></div><button class="g" id="gear" type="button">⚙️ الإعدادات</button></div>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
 <section id="up" class="card">
@@ -74,7 +75,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
     <div><label class="l" for="len">طول التعليق</label><select id="len"><option value="جملتان">مختصر</option><option value="3 إلى 4 جمل" selected>متوسط</option><option value="5 إلى 6 جمل">مفصّل</option></select></div>
     <div class="w"><label class="l" for="sum">ملخص القصة أو ملاحظات (اختياري)</label><textarea id="sum" rows="2"></textarea></div>
   </div>
-  <div class="row"><button id="go" disabled>✨ إنشاء السرد</button><button class="g" id="gear" type="button">⚙️ الإعدادات</button><span id="st"></span></div>
+  <div class="row"><button id="go" disabled>✨ إنشاء السرد</button><span id="st"></span></div>
   <div id="msg"></div>
   </details>
 </section>
@@ -127,7 +128,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
   <h3>🎙 مفاتيح الصوت (Gemini، اختياري — إن تُركت فارغة استُعملت مفاتيح التحليل)</h3>
   <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
   <h3>🧠 النماذج والصوت</h3>
-  <input id="tm" dir="ltr" placeholder="نموذج التحليل (الافتراضي: gemini-3.8-flash)" style="margin-bottom:8px">
+  <label class="l" for="tm">نموذج التحليل والكتابة</label><select id="tm" style="margin-bottom:8px"><option value="gemini-3.8-flash">Gemini 3.8 Flash — الافتراضي ✓</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — أخف وأسرع وأرخص</option></select>
   <input id="tm2" dir="ltr" placeholder="نموذج تحليل بديل عند الازدحام (اختياري)" style="margin-bottom:8px">
   <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-3.8-flash-tts)" style="margin-bottom:8px">
   <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option><option>Callirrhoe</option><option>Autonoe</option><option>Enceladus</option><option>Iapetus</option><option>Umbriel</option><option>Algieba</option><option>Despina</option><option>Erinome</option><option>Algenib</option><option>Rasalgethi</option><option>Laomedeia</option><option>Achernar</option><option>Alnilam</option><option>Schedar</option><option>Gacrux</option><option>Pulcherrima</option><option>Achird</option><option>Zubenelgenubi</option><option>Vindemiatrix</option><option>Sadachbia</option><option>Sadaltager</option><option>Sulafat</option></select>
@@ -158,9 +159,11 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const keys=k=>$(k).value.split(/[\s,;]+/).map(x=>x.replace(/^["']+|["']+$/g,"")).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
-["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;
-$("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
-$("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
+["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;if(!$("tm").value){const v=L("tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
+let setPrev="up";
+$("gear").onclick=()=>{if(typeof REC!=="undefined"&&REC)return;if(!$("set").classList.contains("hide")){closeSet();return}setPrev=["up","sd","pl"].find(i=>!$(i).classList.contains("hide"))||"up";if(setPrev==="pl")stopAll();["up","sd","pl"].forEach(i=>$(i).classList.add("hide"));$("set").classList.remove("hide");scrollTo(0,0)};
+function closeSet(){$("set").classList.add("hide");$(setPrev).classList.remove("hide");if(setPrev==="pl")onRes()}
+$("sb").onclick=closeSet;
 
 // ---- الاتصال بالنماذج ----
 const kerr=(st,m)=>{const bad=/API key not valid|API_KEY_INVALID|API key expired/i.test(m||"");const e=new Error(bad?"مفتاح Gemini غير صالح أو منتهي. أنشئ مفتاحًا جديدًا من Google AI Studio والصقه في ⚙️ الإعدادات (اضغط «اختبار المفاتيح» للتأكد).":st===503||st===429?"الخادم مشغول حاليًا أو نفدت الحصة. أعد المحاولة بعد دقائق، أو أضف نموذجًا بديلًا من الإعدادات.":m);e.retry=bad||[401,403,429,500,503].includes(st);return e};
@@ -417,7 +420,7 @@ async function openP(id){let r;try{r=await dbDo("readonly",st=>st.get(id))}catch
   sc=r.sc.map(x=>({...x,url:x.pcm?URL.createObjectURL(wav(x.pcm,x.rate)):null}));start()}
 
 // ---- تصدير الفيديو (بنفس أبعاد المشاهد) ----
-const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres","bs"].forEach(i=>$(i).disabled=b);
+const lock=b=>["nx","pv","rs","ga","da","vb","nw","snd","vres","bs","gear"].forEach(i=>$(i).disabled=b);
 function cancelRec(){if(!REC)return;REC.cancel=true;if(REC.mr.state!=="inactive")REC.mr.stop()}
 $("vb").onclick=async()=>{if(rdy()<sc.length){$("vst").textContent="أنشئ الصوت أولًا بزر «إنشاء الصوت» ليحتوي الفيديو على صوت.";return}
   if(typeof MediaRecorder==="undefined"){$("vst").textContent="هذا المتصفح لا يدعم تسجيل الفيديو، جرّب Chrome.";return}
