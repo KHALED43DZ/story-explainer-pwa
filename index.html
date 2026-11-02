@@ -55,7 +55,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="hd"><div><div class="ver">الإصدار 3.2</div>
+<div class="hd"><div><div class="ver">الإصدار 3.3</div>
 <h1>📖 شارح القصص بالدارجة</h1></div><button class="g" id="gear" type="button">⚙️ الإعدادات</button></div>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
@@ -129,6 +129,8 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
   <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
   <h3>🧠 النماذج والصوت</h3>
   <label class="l" for="tm">نموذج التحليل والكتابة</label><select id="tm" style="margin-bottom:8px"><option value="gemini-3.8-flash">Gemini 3.8 Flash — الافتراضي ✓</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — أخف وأسرع وأرخص</option></select>
+  <label class="l" for="tth">مستوى تفكير النموذج</label><select id="tth" style="margin-bottom:6px"><option value="">افتراضي</option><option value="low">منخفض (أسرع)</option></select>
+  <p class="sub" style="margin:0 0 8px">3.5 Flash-Lite أسرع لكنه أضعف في الدارجة وفي اختيار الحركات؛ للدارجة الأفضل استعمل 3.8. وإن تأخّر 3.8 فجرّب «منخفض».</p>
   <input id="tm2" dir="ltr" placeholder="نموذج تحليل بديل عند الازدحام (اختياري)" style="margin-bottom:8px">
   <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-3.8-flash-tts)" style="margin-bottom:8px">
   <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option><option>Callirrhoe</option><option>Autonoe</option><option>Enceladus</option><option>Iapetus</option><option>Umbriel</option><option>Algieba</option><option>Despina</option><option>Erinome</option><option>Algenib</option><option>Rasalgethi</option><option>Laomedeia</option><option>Achernar</option><option>Alnilam</option><option>Schedar</option><option>Gacrux</option><option>Pulcherrima</option><option>Achird</option><option>Zubenelgenubi</option><option>Vindemiatrix</option><option>Sadachbia</option><option>Sadaltager</option><option>Sulafat</option></select>
@@ -159,7 +161,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const keys=k=>$(k).value.split(/[\s,;]+/).map(x=>x.replace(/^["']+|["']+$/g,"")).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
-["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;if(!$("tm").value){const v=L("tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
+["kt","ka","tm","tth","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;if(!$("tm").value){const v=L("tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
 let setPrev="up";
 $("gear").onclick=()=>{if(typeof REC!=="undefined"&&REC)return;if(!$("set").classList.contains("hide")){closeSet();return}setPrev=["up","sd","pl"].find(i=>!$(i).classList.contains("hide"))||"up";if(setPrev==="pl")stopAll();["up","sd","pl"].forEach(i=>$(i).classList.add("hide"));$("set").classList.remove("hide");scrollTo(0,0)};
 function closeSet(){$("set").classList.add("hide");$(setPrev).classList.remove("hide");if(setPrev==="pl")onRes()}
@@ -174,14 +176,14 @@ const b64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.sp
 async function llm(prompt,ims){const im=ims||[await b64(img.sm||img.blob)];let last;
   for(let at=0;at<2;at++){try{return await useKeys(keys("kt"),async k=>{let t;
     if(!k.startsWith("sk-ant-")){
-      const m1=$("tm").value.trim()||"gemini-3.8-flash";let m2=$("tm2").value.trim(),r,d;
-      for(let a=0;a<5;a++){const m=(a>=2&&m2)?m2:m1;r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[...im.map(d=>({inline_data:{mime_type:"image/jpeg",data:d}})),{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000}})},300000);
-        d=await r.json().catch(()=>({}));if(r.status===404&&m!==m1){m2="";continue}if(r.status!==503&&r.status!==429)break;
+      const m1=$("tm").value.trim()||"gemini-3.8-flash";let m2=$("tm2").value.trim(),r,d,th=$("tth").value;
+      for(let a=0;a<5;a++){const m=(a>=2&&m2)?m2:m1;r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},body:JSON.stringify({contents:[{parts:[...im.map(d=>({inline_data:{mime_type:"image/jpeg",data:d}})),{text:prompt}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:16000,...(th?{thinkingConfig:{thinkingLevel:th}}:{})}})},900000);
+        d=await r.json().catch(()=>({}));if(r.status===404&&m!==m1){m2="";continue}if(r.status===400&&th&&/think/i.test(JSON.stringify(d))){th="";continue}if(r.status!==503&&r.status!==429)break;
         $("st").textContent="⏳ الخادم مشغول، تتم إعادة المحاولة ("+(a+1)+"/5)...";await new Promise(z=>setTimeout(z,4000*(a+1)))}
       if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من Gemini");
       t=((d.candidates||[{}])[0].content||{parts:[]}).parts.map(p=>p.text||"").join("")
     }else{
-      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[...im.map(d=>({type:"image",source:{type:"base64",media_type:"image/jpeg",data:d}})),{type:"text",text:prompt}]}]})},300000);
+      const r=await fetchT("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-5-5",max_tokens:12000,messages:[{role:"user",content:[...im.map(d=>({type:"image",source:{type:"base64",media_type:"image/jpeg",data:d}})),{type:"text",text:prompt}]}]})},900000);
       const d=await r.json();if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ من الخادم");t=d.content.map(c=>c.text||"").join("")}
     try{return parseJ(t)}catch(e){e.parse=1;throw e}})}catch(e){last=e;if(!e.parse)throw e}}
   throw new Error("ردّ النموذج غير صالح: "+last.message+" — أعد المحاولة.")}
@@ -193,10 +195,18 @@ $("f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObj
   im.onerror=()=>{$("msg").textContent="تعذّر قراءة الصورة."};im.src=u};
 
 // ---- تحليل القصة ----
-const ok=b=>{if(!Array.isArray(b)||b.length!==4||!b.every(n=>typeof n==="number"&&isFinite(n)))return null;let[x,y,w,h]=b.map(n=>Math.max(0,Math.min(1,n)));w=Math.min(w,1-x);h=Math.min(h,1-y);return w<.02||h<.02?null:[x,y,w,h]};
+const FXS=["zoom","shake","reveal","spotlight","pan","flash","none"],ATMS2=["dust","rain","snow","embers","leaves","stars","fog","rays"];
+function fixFx(a){const cyc=["zoom","pan","none"];a.forEach((s,i)=>{if(!FXS.includes(s.fx))s.fx=cyc[i%3];if(["zoom","reveal","spotlight"].includes(s.fx)&&!s.focus)s.fx=i%2?"pan":"none";if(!ATMS2.includes(s.atm))s.atm="none"});
+  if(a.length>2&&new Set(a.map(s=>s.fx)).size<2)a.forEach((s,i)=>{if(i%3===1)s.fx="pan"})}
+const DJ=`قواعد اللغة (مهمة جدًا): اكتب التعليق بالدارجة الجزائرية الحقيقية كما يتكلم بها الناس في الجزائر، وليس بالعربية الفصحى ولا بلهجة أخرى. استعمل مفردات مثل: واش، كاين، ما كانش، راح، باش، بزاف، شوية، ماشي، علاش، كيفاش، وين، هاد/هادي، تاع/نتاع، دابا/توا، يخي، صح، مليح، قاع، برك، خاطر، كي، بصح، ولاد. ممنوع استعمال: سوف، لقد، إنّ، حيث، هذا، الآن، لكن (قل بصح). مثال على الأسلوب: «كان يا مكان ولد صغير إسمو أنس، راح للحديقة باش يلعب، وفجأة لقا جرو ضايع يبكي. قاللو: ما تخافش يا صاحبي، أنا نعاونك!»`;
+const ok=b=>{if(!Array.isArray(b)||b.length!==4||!b.every(n=>typeof n==="number"&&isFinite(n)))return null;const m=Math.max(...b);
+  if(m>1){const n=b.map(v=>v/(m<=100?100:1000));b=(n[2]>n[0]&&n[3]>n[1])?[n[1],n[0],n[3]-n[1],n[2]-n[0]]:n}
+  let[x,y,w,h]=b.map(n=>Math.max(0,Math.min(1,n)));w=Math.min(w,1-x);h=Math.min(h,1-y);return w<.02||h<.02?null:[x,y,w,h]};
 $("go").onclick=async()=>{$("msg").textContent="";$("go").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("st").textContent="⏳ جارٍ تحليل القصة... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("st").textContent="⏳ جارٍ تحليل القصة...";
   try{const n=$("cnt").value.replace(/\D/g,""),T=$("ttl").value.trim(),M=$("sum").value.trim();
-    const p=`أنت كاتب قصص ومعلّق محترف للأطفال بالدارجة الجزائرية. الصورة المرفقة صفحة واحدة تضم مشاهد مصورة لقصة مرتبة في شبكة، وتحت كل مشهد شرح قصير مكتوب.
+    const p=`أنت كاتب قصص ومعلّق محترف للأطفال بالدارجة الجزائرية.
+${DJ}
+الصورة المرفقة صفحة واحدة تضم مشاهد مصورة لقصة مرتبة في شبكة، وتحت كل مشهد شرح قصير مكتوب.
 ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك."} ترتيب القراءة: ${({n:"اتبع الأرقام المكتوبة تحت كل مشهد بدقة (قد يكون اتجاه الأسطر متعاكسًا، مثل صف من اليمين لليسار وصف من اليسار لليمين)، وإن لم توجد أرقام فمن اليمين إلى اليسار",r:"من اليمين إلى اليسار ثم الأسطر من الأعلى إلى الأسفل",l:"من اليسار إلى اليمين ثم الأسطر من الأعلى إلى الأسفل"})[$("ord").value]}.
 نوع القصة: ${$("gen").value}. الفئة: ${$("age").value}. نبرة السرد: ${$("sty").value}. طول تعليق كل مشهد: ${$("len").value}.${T?" عنوان القصة: "+T+".":""}${M?" ملاحظات صاحب القصة: "+M:""}
 لكل مشهد:
@@ -212,7 +222,7 @@ ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك
     const j=await llm(p);title=T||j.title||"قصة";
     sc=(j.scenes||[]).filter(s=>s&&s.say).map(s=>({...s,box:ok(s.box),focus:ok(s.focus),tts:(typeof s.tts==="string"&&s.tts.trim())?s.tts:s.say,pause:Math.max(0,Math.min(3,+s.pause||0)),bubble:s.bubble&&s.bubble.text&&isFinite(+s.bubble.x)&&isFinite(+s.bubble.y)?{x:Math.max(.05,Math.min(.95,+s.bubble.x)),y:Math.max(.05,Math.min(.95,+s.bubble.y)),text:String(s.bubble.text)}:null,url:null,pcm:null,sig:null}));
     if(!sc.length)throw new Error("لم أستطع فهم القصة، جرّب صورة أوضح.");
-    PID="p"+Date.now();saveP(true);start()}catch(e){$("msg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
+    fixFx(sc);PID="p"+Date.now();saveP(true);start()}catch(e){$("msg").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
   clearInterval(iv);$("st").textContent="";$("go").disabled=false};
 
 // ---- العرض ----
@@ -241,7 +251,7 @@ function buildTL(o){const LEAD=.35,TAIL=.6,INTRO=o.io?2.6:0,OUTRO=o.io?3.2:0;let
     if(s.atm==="rain")ev.push({t:r.start,n:"rain",g:.16,loop:1,end:r.end});
     t+=dur-XF});
   return{sc:a,ev,total:a.length?a[a.length-1].end:0,INTRO,OUTRO}}
-function camBox(s,i,p){const b=s.box||[0,0,1,1],f=s.focus,fx=s.fx||"zoom",drift=(x,q)=>shrink(x,i%2?.91+.09*q:1-.09*q);
+function camBox(s,i,p){const b=s.box||[0,0,1,1],f=s.focus,fx=s.fx||"zoom",drift=(x,q)=>{const k=i%2?.86+.14*q:1-.14*q,y=shrink(x,k),sg=i%3===0?-1:1,e=i%2?1-q:q;return i%3===1?[y[0],y[1]+sg*(x[3]-y[3])/2*.8*e,y[2],y[3]]:[y[0]+sg*(x[2]-y[2])/2*.8*e,y[1],y[2],y[3]]};
   if(fx==="zoom"&&f)return bl(drift(b,p),shrink(fcam(f,b),1-.08*p),E1(cl((p-.12)/.45)));
   if(fx==="reveal"&&f)return bl(drift(b,p),shrink(fcam(f,b),1-.05*p),1-E1(cl((p-.40)/.28)));
   if(fx==="spotlight"&&f)return bl(drift(b,p),shrink(fcam(f,b),1-.06*p),E1(cl((p-.15)/.40)));
@@ -495,7 +505,9 @@ $("sa2").onclick=async()=>{ST.tone=$("stn").value;ST.len=$("sln").value;ST.note=
   if(sc.length&&!confirm("إعادة التحليل ستستبدل السرد والصوت الحاليين. متابعة؟"))return;
   $("sa2").disabled=true;const t0=Date.now(),iv=setInterval(()=>{$("sst3").textContent="⏳ جارٍ التحليل... "+Math.round((Date.now()-t0)/1000)+" ث"},1000);$("sst3").textContent="⏳ جارٍ التحليل...";
   try{const ims=[];for(const x of ST.scenes)ims.push(await b64(await small(x.blob,768)));const n=ST.scenes.length;
-    const p=`أنت كاتب ومعلّق قصص محترف للأطفال بالدارجة الجزائرية. الصور المرفقة هي مشاهد قصة بالترتيب (${n} صور، صورة لكل مشهد).
+    const p=`أنت كاتب ومعلّق قصص محترف للأطفال بالدارجة الجزائرية.
+${DJ}
+الصور المرفقة هي مشاهد قصة بالترتيب (${n} صور، صورة لكل مشهد).
 عنوان القصة: ${title}. ملخصها: ${ST.synopsis}. الشخصيات: ${ST.chars.map(c=>c.name+" ("+c.ar+")").join("، ")}.
 وصف المشاهد بالترتيب: ${ST.scenes.map((x,i)=>(i+1)+") "+x.ar).join(" ")}
 الفئة: ${ST.age}. النوع: ${ST.genre}. نبرة السرد: ${ST.tone}. طول تعليق كل مشهد: ${ST.len}.${ST.note?" ملاحظات: "+ST.note:""}
@@ -509,7 +521,7 @@ $("sa2").onclick=async()=>{ST.tone=$("stn").value;ST.len=$("sln").value;ST.note=
 أعد JSON فقط بلا markdown: {"scenes":[{"say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1,"atm":"none","mood":"neutral"}]} بعدد ${n} مشاهد وبنفس ترتيب الصور.`;
     const j=await llm(p,ims),a=(j.scenes||[]).slice(0,n);if(a.length<n||a.some(x=>!x||!x.say))throw new Error("لم يكتمل التحليل لكل المشاهد، أعد المحاولة.");
     sc=a.map((x,i)=>({...x,i,box:[0,0,1,1],im:ST.scenes[i].im,focus:ok(x.focus),tts:(typeof x.tts==="string"&&x.tts.trim())?x.tts:x.say,pause:Math.max(0,Math.min(3,+x.pause||0)),bubble:x.bubble&&x.bubble.text&&isFinite(+x.bubble.x)&&isFinite(+x.bubble.y)?{x:Math.max(.05,Math.min(.95,+x.bubble.x)),y:Math.max(.05,Math.min(.95,+x.bubble.y)),text:String(x.bubble.text)}:null,url:null,pcm:null,sig:null}));
-    ST.stale=false;saveP(true);img=ST.scenes[0].im;start()}
+    fixFx(sc);ST.stale=false;saveP(true);img=ST.scenes[0].im;start()}
   catch(e){$("smsg3").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
   clearInterval(iv);$("sst3").textContent="";$("sa2").disabled=false};
 
