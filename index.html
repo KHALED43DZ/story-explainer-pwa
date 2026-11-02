@@ -54,7 +54,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="ver">الإصدار 3.0</div>
+<div class="ver">الإصدار 3.1</div>
 <h1>📖 شارح القصص بالدارجة</h1>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
@@ -123,6 +123,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
   <h2>⚙️ الإعدادات</h2>
   <h3>🔑 مفاتيح تحليل القصة (Gemini، وتُقبل مفاتيح Claude التي تبدأ بـ sk-ant-) — مفتاح في كل سطر</h3>
   <textarea id="kt" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
+  <div class="row" style="margin-top:6px"><button class="g" id="tk" type="button">🔍 اختبار المفاتيح</button></div><div id="tkr" class="sub"></div>
   <h3>🎙 مفاتيح الصوت (Gemini، اختياري — إن تُركت فارغة استُعملت مفاتيح التحليل)</h3>
   <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
   <h3>🧠 النماذج والصوت</h3>
@@ -155,14 +156,14 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </main>
 <script>
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-const keys=k=>$(k).value.split(/\s+/).filter(Boolean);
+const keys=k=>$(k).value.split(/[\s,;]+/).map(x=>x.replace(/^["']+|["']+$/g,"")).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
 ["kt","ka","tm","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;
 $("gear").onclick=()=>{$("up").classList.add("hide");$("set").classList.remove("hide")};
 $("sb").onclick=()=>{$("set").classList.add("hide");$("up").classList.remove("hide")};
 
 // ---- الاتصال بالنماذج ----
-const kerr=(st,m)=>{const e=new Error(st===503||st===429?"الخادم مشغول حاليًا أو نفدت الحصة. أعد المحاولة بعد دقائق، أو أضف نموذجًا بديلًا من الإعدادات.":m);e.retry=[401,403,429,500,503].includes(st);return e};
+const kerr=(st,m)=>{const bad=/API key not valid|API_KEY_INVALID|API key expired/i.test(m||"");const e=new Error(bad?"مفتاح Gemini غير صالح أو منتهي. أنشئ مفتاحًا جديدًا من Google AI Studio والصقه في ⚙️ الإعدادات (اضغط «اختبار المفاتيح» للتأكد).":st===503||st===429?"الخادم مشغول حاليًا أو نفدت الحصة. أعد المحاولة بعد دقائق، أو أضف نموذجًا بديلًا من الإعدادات.":m);e.retry=bad||[401,403,429,500,503].includes(st);return e};
 async function fetchT(u,o,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await fetch(u,{...o,signal:c.signal})}catch(e){throw new Error(e.name==="AbortError"?"انتهت مهلة الانتظار.":"تعذّر الاتصال بالإنترنت.")}finally{clearTimeout(t)}}
 async function useKeys(list,fn,st=0){if(!list.length)throw new Error("أضف مفتاح Gemini من الإعدادات ⚙️ أولًا.");let last;for(let n=0;n<list.length;n++){try{return await fn(list[(st+n)%list.length])}catch(e){last=e;if(!e.retry)throw e}}throw last}
 function parseJ(t){t=String(t).replace(/```json|```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<a)throw new Error("ردّ غير صالح");t=t.slice(a,b+1);try{return JSON.parse(t)}catch(e){return JSON.parse(t.replace(/,\s*([}\]])/g,"$1"))}}
@@ -509,6 +510,9 @@ $("sa2").onclick=async()=>{ST.tone=$("stn").value;ST.len=$("sln").value;ST.note=
   catch(e){$("smsg3").textContent=e.message||"حدث خطأ، حاول مرة أخرى."}
   clearInterval(iv);$("sst3").textContent="";$("sa2").disabled=false};
 
+$("tk").onclick=async()=>{const ks=[...new Set(keys("kt").concat(keys("ka")))].filter(k=>!k.startsWith("sk-ant-")),o=$("tkr");if(!ks.length){o.textContent="لا توجد مفاتيح Gemini مكتوبة.";return}o.textContent="⏳ جارٍ الاختبار...";const res=[];
+  for(const k of ks){try{const r=await fetchT("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",{headers:{"x-goog-api-key":k}},15000);res.push((r.ok?"✅ يعمل":"❌ غير صالح ("+r.status+")")+" — ينتهي بـ "+k.slice(-4))}catch(e){res.push("⚠️ "+e.message+" — ينتهي بـ "+k.slice(-4))}}
+  o.textContent=res.join("\n");o.style.whiteSpace="pre-wrap"};
 listP();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
