@@ -30,7 +30,7 @@ button.g{background:transparent;color:var(--ink);border:1px solid var(--line)}bu
 label.l{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
 input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
 .hide{display:none!important}#msg,#vst{color:var(--mute);margin-top:10px}#msg{color:#e11d48}
-#frame{position:relative;width:100%;aspect-ratio:16/9;background:#111;border:3px solid var(--acc);border-radius:14px;overflow:hidden;direction:ltr}
+#frame{position:relative;width:100%;aspect-ratio:16/9;background:#111;border-radius:14px;overflow:hidden;direction:ltr}
 #shk{position:absolute;inset:0}#cam{position:absolute;left:0;top:0;transform-origin:0 0}
 #cam img{display:block;width:100%;height:100%;background:#fff}
 #ov{position:absolute;inset:0;width:100%;height:100%;overflow:visible}#ov path{fill:#000;fill-rule:evenodd;transition:opacity .8s}
@@ -55,7 +55,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="hd"><div><div class="ver">الإصدار 3.3</div>
+<div class="hd"><div><div class="ver">الإصدار 3.4</div>
 <h1>📖 شارح القصص بالدارجة</h1></div><button class="g" id="gear" type="button">⚙️ الإعدادات</button></div>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
@@ -196,8 +196,12 @@ $("f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObj
 
 // ---- تحليل القصة ----
 const FXS=["zoom","shake","reveal","spotlight","pan","flash","none"],ATMS2=["dust","rain","snow","embers","leaves","stars","fog","rays"];
-function fixFx(a){const cyc=["zoom","pan","none"];a.forEach((s,i)=>{if(!FXS.includes(s.fx))s.fx=cyc[i%3];if(["zoom","reveal","spotlight"].includes(s.fx)&&!s.focus)s.fx=i%2?"pan":"none";if(!ATMS2.includes(s.atm))s.atm="none"});
+const clampBox=(x,b)=>{const w=Math.min(b[2],Math.max(x[2],b[2]*.2)),h=Math.min(b[3],Math.max(x[3],b[3]*.2));return[cl(x[0]+x[2]/2-w/2,b[0],b[0]+b[2]-w),cl(x[1]+x[3]/2-h/2,b[1],b[1]+b[3]-h),w,h]};
+function fixShots(s){const b=s.box||[0,0,1,1];let sh=(Array.isArray(s.shots)?s.shots:[]).map(x=>({t:cl(+x.at||0),box:ok(x.box),mv:["cut","fast","slow"].includes(x.mv)?x.mv:"fast"})).filter(x=>x.box).map(x=>({...x,box:clampBox(x.box,b)})).sort((p,q)=>p.t-q.t);
+  if(sh.length){if(sh[0].t>.02)sh.unshift({t:0,box:b,mv:"cut"});else sh[0].t=0}s.shots=sh.length>=2?sh:null}
+function fixFx(a){const cyc=["zoom","pan","none"];a.forEach((s,i)=>{fixShots(s);if(!FXS.includes(s.fx))s.fx=cyc[i%3];if(["zoom","reveal","spotlight"].includes(s.fx)&&!s.focus)s.fx=i%2?"pan":"none";if(!ATMS2.includes(s.atm))s.atm="none"});
   if(a.length>2&&new Set(a.map(s=>s.fx)).size<2)a.forEach((s,i)=>{if(i%3===1)s.fx="pan"})}
+const SH=`(12) shots: قسّم كل مشهد إلى لقطات سريعة كأنها كاميرات مخرج سينمائي، من 2 إلى 5 لقطات تتبع الحوار والحدث بالترتيب: لقطة واسعة في البداية، ثم تقريب على الشخصية التي تتكلم، ثم الانتقال إلى الشخصية المقابلة أو ردّة فعلها (ويمكن التناوب بينهما أثناء الحوار)، وعند الغضب أو المفاجأة أو الخوف أو الفرح الكبير قرّب على ملامح الوجه. لكل لقطة: at (بداية اللقطة كنسبة من 0 إلى 1 من زمن التعليق؛ أول لقطة 0 وتتصاعد)، box مستطيل [x,y,w,h] بنسب الصورة المرفقة من 0 إلى 1 ضيق ومحكم حول الشخصية أو وجهها (للوجه مستطيل صغير حول الرأس)، mv نوع الانتقال إليها: cut (قطع مباشر) أو fast (حركة سريعة) أو slow (بطيئة)؛ اجعل أغلب الانتقالات cut أو fast. إن لم توجد شخصيات واضحة فاكتفِ بلقطتين.`;
 const DJ=`قواعد اللغة (مهمة جدًا): اكتب التعليق بالدارجة الجزائرية الحقيقية كما يتكلم بها الناس في الجزائر، وليس بالعربية الفصحى ولا بلهجة أخرى. استعمل مفردات مثل: واش، كاين، ما كانش، راح، باش، بزاف، شوية، ماشي، علاش، كيفاش، وين، هاد/هادي، تاع/نتاع، دابا/توا، يخي، صح، مليح، قاع، برك، خاطر، كي، بصح، ولاد. ممنوع استعمال: سوف، لقد، إنّ، حيث، هذا، الآن، لكن (قل بصح). مثال على الأسلوب: «كان يا مكان ولد صغير إسمو أنس، راح للحديقة باش يلعب، وفجأة لقا جرو ضايع يبكي. قاللو: ما تخافش يا صاحبي، أنا نعاونك!»`;
 const ok=b=>{if(!Array.isArray(b)||b.length!==4||!b.every(n=>typeof n==="number"&&isFinite(n)))return null;const m=Math.max(...b);
   if(m>1){const n=b.map(v=>v/(m<=100?100:1000));b=(n[2]>n[0]&&n[3]>n[1])?[n[1],n[0],n[3]-n[1],n[2]-n[0]]:n}
@@ -218,7 +222,8 @@ ${n?"عدد المشاهد: "+n+".":"اكتشف عدد المشاهد بنفسك
 (6) focus: مستطيل الشخصية أو الشيء المهم [x,y,w,h] بنسب الصورة كلها، ضيق ومحكم؛ يلزم مع zoom وreveal وspotlight، وإلا null.
 (7) bubble اختياري: {"x":0.5,"y":0.3,"text":"..."} فقاعة قصيرة (حتى 5 كلمات) بالدارجة فوق الشخصية المتكلمة بنسب الصورة كلها، وإلا null.
 (8) emoji واحد يعبّر عن الإحساس أو "". (9) pause عدد صحيح من 0 إلى 2 ثانية. (10) atm جوّ المشهد: واحد من dust (غبار)، rain (مطر)، snow (ثلج)، embers (شرر)، leaves (أوراق)، stars (نجوم ليلية)، fog (ضباب)، rays (أشعة ضوء)، أو none. (11) mood لون المشهد: neutral أو warm (دافئ) أو cool (بارد) أو night (ليلي) أو danger (خطر). نوّع بين المشاهد ولا تُكثر.
-أعد JSON فقط بلا markdown: {"title":"عنوان القصة","scenes":[{"box":[0,0,0,0],"caption":"","say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1,"atm":"none","mood":"neutral"}]}`;
+${SH}
+أعد JSON فقط بلا markdown: {"title":"عنوان القصة","scenes":[{"box":[0,0,0,0],"caption":"","say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1,"atm":"none","mood":"neutral","shots":[{"at":0,"box":[0,0,1,1],"mv":"cut"}]}]}`;
     const j=await llm(p);title=T||j.title||"قصة";
     sc=(j.scenes||[]).filter(s=>s&&s.say).map(s=>({...s,box:ok(s.box),focus:ok(s.focus),tts:(typeof s.tts==="string"&&s.tts.trim())?s.tts:s.say,pause:Math.max(0,Math.min(3,+s.pause||0)),bubble:s.bubble&&s.bubble.text&&isFinite(+s.bubble.x)&&isFinite(+s.bubble.y)?{x:Math.max(.05,Math.min(.95,+s.bubble.x)),y:Math.max(.05,Math.min(.95,+s.bubble.y)),text:String(s.bubble.text)}:null,url:null,pcm:null,sig:null}));
     if(!sc.length)throw new Error("لم أستطع فهم القصة، جرّب صورة أوضح.");
@@ -278,17 +283,21 @@ function drawBubble(g,W,H,txt,sx,sy,T,bt,te){const k=cl((T-bt)/.35);if(k<=0)retu
   g.fillStyle="#111";ls.forEach((q,i)=>g.fillText(q,0,(i-(ls.length-1)/2)*lh));g.restore()}
 function drawEmoji(g,W,H,em,sx,sy,T,bt,te){const k=cl((T-bt)/.4);if(k<=0)return;const fs=W*.09;g.save();g.globalAlpha*=cl((te-T)/.4);g.translate(cl(sx,fs,W-fs),cl(sy+Math.sin(T*3)*W*.006,fs,H*.6));g.scale(EB(k),EB(k));
   g.font=`${fs}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.textAlign="center";g.textBaseline="middle";g.fillText(em,0,0);g.restore()}
-function drawScene(g,W,H,i,T,o,alpha,tr){const s=sc[i],r=E.tl.sc[i],u=T-r.start,p=cl(u/r.dur),ta=u-r.lead,I=sceneIm(s),el=imgEl(I.url),b=s.box||[0,0,1,1],ff=b[2]>=.99&&b[3]>=.99?1:.9,fx=s.fx||"zoom",f=s.focus;
-  const iw=W,ih=W*I.h/I.w,cb=camBox(s,i,p);let k=Math.min(8,ff*W/(cb[2]*iw),ff*H/(cb[3]*ih)),dx=0,dy=0,rot=0;
+function shotBox(s,r,u){const sh=s.shots,aD=Math.max(.5,r.aDur),q=cl((u-r.lead)/aD);let j=0;for(let k=0;k<sh.length;k++)if(q>=sh[k].t)j=k;
+  const dur=k=>Math.max(.3,((k<sh.length-1?sh[k+1].t:1)-sh[k].t)*aD),el=Math.max(0,u-(r.lead+sh[j].t*aD)),B=shrink(sh[j].box,1-.05*cl(el/dur(j)));let box=B,punch=0;
+  if(j>0){const mv=sh[j].mv,d=mv==="cut"?0:mv==="slow"?.9:.3;if(d>0&&el<d)box=bl(shrink(sh[j-1].box,.95),B,mv==="slow"?E1(el/d):EO(el/d));else if(mv==="cut")punch=1-cl(el/.18)}
+  return{box,punch}}
+function drawScene(g,W,H,i,T,o,alpha,tr){const s=sc[i],r=E.tl.sc[i],u=T-r.start,p=cl(u/r.dur),ta=u-r.lead,I=sceneIm(s),el=imgEl(I.url),b=s.box||[0,0,1,1],fx=s.fx||"zoom",f=s.focus;
+  const iw=W,ih=W*I.h/I.w;let cb,pn=0;if(s.shots){const q2=shotBox(s,r,u);cb=q2.box;pn=q2.punch}else cb=camBox(s,i,p);
+  let k=Math.min(10,Math.max(W/(cb[2]*iw),H/(cb[3]*ih)))*(1+.05*pn);const vw=W/(k*iw),vh=H/(k*ih),cx=vw>=b[2]?b[0]+b[2]/2:cl(cb[0]+cb[2]/2,b[0]+vw/2,b[0]+b[2]-vw/2),cy=vh>=b[3]?b[1]+b[3]/2:cl(cb[1]+cb[3]/2,b[1]+vh/2,b[1]+b[3]-vh/2);let dx=0,dy=0,rot=0;
   if(fx==="shake"){const e=(ta>.5&&ta<2.6)?Math.pow(1-(ta-.5)/2.1,1.4):0;dx=(Math.sin(ta*53)+Math.sin(ta*91+1.3))*.5*W*.016*e;dy=(Math.sin(ta*47+.6)+Math.sin(ta*83))*.5*W*.012*e;rot=Math.sin(ta*61)*.01*e;k*=1+.05*e}
-  const tx=W/2-(cb[0]+cb[2]/2)*iw*k,ty=H/2-(cb[1]+cb[3]/2)*ih*k,sx=x=>tx+x*iw*k+dx,sy=y=>ty+y*ih*k+dy,te=r.end-.35;
+  const tx=W/2-cx*iw*k,ty=H/2-cy*ih*k,sx=x=>tx+x*iw*k+dx,sy=y=>ty+y*ih*k+dy,te=r.end-.35;
   g.save();g.globalAlpha=alpha;
   if(tr==="slide")g.translate((1-EO(alpha))*W*.3,0);else if(tr==="zoom"){const z=1.12-.12*EO(alpha);g.translate(W/2,H/2);g.scale(z,z);g.translate(-W/2,-H/2)}
   g.save();g.translate(W/2+dx,H/2+dy);g.rotate(rot);g.translate(-W/2,-H/2);g.translate(tx,ty);g.scale(k,k);
   if(el&&(el.naturalWidth||el.width))g.drawImage(el,0,0,iw,ih);
   if(o.fx&&MOOD[s.mood]){g.save();g.globalCompositeOperation="soft-light";g.globalAlpha*=.4;g.fillStyle=MOOD[s.mood];g.fillRect(0,0,iw,ih);g.restore()}
   const dim=(h,a)=>{if(a<.01)return;g.save();g.globalAlpha*=a;g.fillStyle="#000";g.beginPath();g.rect(-3*iw,-3*ih,7*iw,7*ih);if(h)g.rect(h[0]*iw,h[1]*ih,h[2]*iw,h[3]*ih);g.fill("evenodd");g.restore()};
-  if(ff<1)dim(b,.94);
   if(f&&fx==="reveal")dim(f,.97*(1-E1(cl((p-.38)/.18))));
   if(f&&fx==="spotlight")dim(shrink(f,1.15),.65*E1(cl((p-.12)/.25)));
   g.restore();
@@ -518,7 +527,8 @@ ${DJ}
 (4) focus: مستطيل الشخصية أو الشيء المهم [x,y,w,h] بنسب هذه الصورة نفسها من 0 إلى 1، ضيق ومحكم؛ يلزم مع zoom وreveal وspotlight، وإلا null.
 (5) bubble اختياري: {"x":0.5,"y":0.3,"text":"..."} فقاعة قصيرة (حتى 5 كلمات) بالدارجة فوق الشخصية المتكلمة بنسب هذه الصورة، وإلا null.
 (6) emoji واحد يعبّر عن الإحساس أو "". (7) pause عدد صحيح من 0 إلى 2. (8) atm جوّ المشهد: واحد من dust (غبار)، rain (مطر)، snow (ثلج)، embers (شرر)، leaves (أوراق)، stars (نجوم ليلية)، fog (ضباب)، rays (أشعة ضوء)، أو none. (9) mood لون المشهد: neutral أو warm (دافئ) أو cool (بارد) أو night (ليلي) أو danger (خطر). نوّع بين المشاهد ولا تُكثر.
-أعد JSON فقط بلا markdown: {"scenes":[{"say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1,"atm":"none","mood":"neutral"}]} بعدد ${n} مشاهد وبنفس ترتيب الصور.`;
+${SH}
+أعد JSON فقط بلا markdown: {"scenes":[{"say":"","tts":"","fx":"zoom","focus":null,"bubble":null,"emoji":"","pause":1,"atm":"none","mood":"neutral","shots":[{"at":0,"box":[0,0,1,1],"mv":"cut"}]}]} بعدد ${n} مشاهد وبنفس ترتيب الصور.`;
     const j=await llm(p,ims),a=(j.scenes||[]).slice(0,n);if(a.length<n||a.some(x=>!x||!x.say))throw new Error("لم يكتمل التحليل لكل المشاهد، أعد المحاولة.");
     sc=a.map((x,i)=>({...x,i,box:[0,0,1,1],im:ST.scenes[i].im,focus:ok(x.focus),tts:(typeof x.tts==="string"&&x.tts.trim())?x.tts:x.say,pause:Math.max(0,Math.min(3,+x.pause||0)),bubble:x.bubble&&x.bubble.text&&isFinite(+x.bubble.x)&&isFinite(+x.bubble.y)?{x:Math.max(.05,Math.min(.95,+x.bubble.x)),y:Math.max(.05,Math.min(.95,+x.bubble.y)),text:String(x.bubble.text)}:null,url:null,pcm:null,sig:null}));
     fixFx(sc);ST.stale=false;saveP(true);img=ST.scenes[0].im;start()}
