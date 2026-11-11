@@ -55,7 +55,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="hd"><div><div class="ver">الإصدار 3.4</div>
+<div class="hd"><div><div class="ver">الإصدار 3.5</div>
 <h1>📖 شارح القصص بالدارجة</h1></div><button class="g" id="gear" type="button">⚙️ الإعدادات</button></div>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
@@ -159,9 +159,12 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </main>
 <script>
 const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},S=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-const keys=k=>$(k).value.split(/[\s,;]+/).map(x=>x.replace(/^["']+|["']+$/g,"")).filter(Boolean);
+const keys=k=>$(k).value.split(/[\s,;\[\]"']+/).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
-["kt","ka","tm","tth","tm2","tmt","gv"].forEach(k=>{if(L(k))$(k).value=L(k);$(k).oninput=()=>S(k,$(k).value)});if(!$("gv").value)$("gv").selectedIndex=0;if(!$("tm").value){const v=L("tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
+const nk=v=>{v=String(v||"").trim();if(v[0]==="["){try{const a=JSON.parse(v);if(Array.isArray(a))return a.map(x=>String(x).trim()).filter(Boolean).join("\n")}catch(e){}}return v.split(/[\s,;\[\]"']+/).filter(Boolean).join("\n")};
+["kt","ka","tm","tth","tm2","tmt","gv"].forEach(k=>{const kk=k==="kt"||k==="ka";let v=L("st_"+k);if(!v&&kk)v=L(k);if(v)$(k).value=kk?nk(v):v;$(k).oninput=()=>S("st_"+k,$(k).value);if(kk)$(k).onblur=()=>{$(k).value=nk($(k).value);S("st_"+k,$(k).value)}});
+if(!$("gv").value)$("gv").selectedIndex=0;
+if(!$("tm").value){const v=L("st_tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
 let setPrev="up";
 $("gear").onclick=()=>{if(typeof REC!=="undefined"&&REC)return;if(!$("set").classList.contains("hide")){closeSet();return}setPrev=["up","sd","pl"].find(i=>!$(i).classList.contains("hide"))||"up";if(setPrev==="pl")stopAll();["up","sd","pl"].forEach(i=>$(i).classList.add("hide"));$("set").classList.remove("hide");scrollTo(0,0)};
 function closeSet(){$("set").classList.add("hide");$(setPrev).classList.remove("hide");if(setPrev==="pl")onRes()}
