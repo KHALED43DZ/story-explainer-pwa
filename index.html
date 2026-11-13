@@ -55,7 +55,7 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
 </head>
 <body>
 <main>
-<div class="hd"><div><div class="ver">الإصدار 3.5</div>
+<div class="hd"><div><div class="ver">الإصدار 3.6</div>
 <h1>📖 شارح القصص بالدارجة</h1></div><button class="g" id="gear" type="button">⚙️ الإعدادات</button></div>
 <p class="sub">حوّل قصصك المصورة إلى فيديو تفاعلي بسرد ومؤثرات بالدارجة الجزائرية.</p>
 
@@ -128,11 +128,11 @@ button.g.on{background:var(--acc);color:#fff;border-color:var(--acc)}a.btn{displ
   <h3>🎙 مفاتيح الصوت (Gemini، اختياري — إن تُركت فارغة استُعملت مفاتيح التحليل)</h3>
   <textarea id="ka" rows="3" dir="ltr" placeholder="AIza..." autocomplete="off"></textarea>
   <h3>🧠 النماذج والصوت</h3>
-  <label class="l" for="tm">نموذج التحليل والكتابة</label><select id="tm" style="margin-bottom:8px"><option value="gemini-3.8-flash">Gemini 3.8 Flash — الافتراضي ✓</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — أخف وأسرع وأرخص</option></select>
+  <label class="l" for="tm">نموذج التحليل والكتابة</label><select id="tm" style="margin-bottom:4px"></select><p class="sub" id="tmi" style="margin:0 0 8px"></p>
   <label class="l" for="tth">مستوى تفكير النموذج</label><select id="tth" style="margin-bottom:6px"><option value="">افتراضي</option><option value="low">منخفض (أسرع)</option></select>
-  <p class="sub" style="margin:0 0 8px">3.5 Flash-Lite أسرع لكنه أضعف في الدارجة وفي اختيار الحركات؛ للدارجة الأفضل استعمل 3.8. وإن تأخّر 3.8 فجرّب «منخفض».</p>
-  <input id="tm2" dir="ltr" placeholder="نموذج تحليل بديل عند الازدحام (اختياري)" style="margin-bottom:8px">
-  <input id="tmt" dir="ltr" placeholder="نموذج الصوت (الافتراضي: gemini-3.8-flash-tts)" style="margin-bottom:8px">
+  <p class="sub" style="margin:0 0 8px">للدارجة الأفضل استعمل 3.8؛ والنماذج الخفيفة أسرع لكنها أضعف في الدارجة وفي اختيار الحركات واللقطات. وإن تأخّر النموذج فجرّب «منخفض». <br>العلامات (مدفوع / بلا علامة Paid) مأخوذة من قائمة AI Studio عندك؛ «بلا علامة Paid» لا يعني بالضرورة حدودًا مفتوحة. السرعة تقدير مني، والسعر لكل مليون توكن (مدخل / مخرج).</p>
+  <label class="l" for="tm2">نموذج بديل عند الازدحام (اختياري)</label><select id="tm2" style="margin-bottom:8px"></select>
+  <label class="l" for="tmt">نموذج الصوت (TTS)</label><select id="tmt" style="margin-bottom:4px"></select><p class="sub" id="tmti" style="margin:0 0 8px"></p>
   <select id="gv"><option>Kore</option><option>Puck</option><option>Charon</option><option>Fenrir</option><option>Aoede</option><option>Zephyr</option><option>Orus</option><option>Leda</option><option>Callirrhoe</option><option>Autonoe</option><option>Enceladus</option><option>Iapetus</option><option>Umbriel</option><option>Algieba</option><option>Despina</option><option>Erinome</option><option>Algenib</option><option>Rasalgethi</option><option>Laomedeia</option><option>Achernar</option><option>Alnilam</option><option>Schedar</option><option>Gacrux</option><option>Pulcherrima</option><option>Achird</option><option>Zubenelgenubi</option><option>Vindemiatrix</option><option>Sadachbia</option><option>Sadaltager</option><option>Sulafat</option></select>
   <div class="row"><button id="sb" type="button">← رجوع</button></div>
 </section>
@@ -162,7 +162,15 @@ const $=id=>document.getElementById(id),L=k=>{try{return localStorage.getItem(k)
 const keys=k=>$(k).value.split(/[\s,;\[\]"']+/).filter(Boolean);
 let img=null,sc=[],title="",cur=-1,playing=true,tok=0,tm=null,au=null,REC=null,ASP=1.78;
 const nk=v=>{v=String(v||"").trim();if(v[0]==="["){try{const a=JSON.parse(v);if(Array.isArray(a))return a.map(x=>String(x).trim()).filter(Boolean).join("\n")}catch(e){}}return v.split(/[\s,;\[\]"']+/).filter(Boolean).join("\n")};
+const MA=[["gemini-3.8-flash","Gemini 3.8 Flash","⚖️ متوسط","f","$0.75 / $3.75","الافتراضي — الأفضل للدارجة"],["gemini-3.5-flash-lite","Gemini 3.5 Flash-Lite","⚡ الأسرع","f","$0.30 / $2.50","أضعف في الدارجة والحركات"],["gemini-3.1-flash-lite","Gemini 3.1 Flash-Lite","⚡ سريع","f","$0.25 / $1.50","الأرخص"],["gemini-3.6-flash","Gemini 3.6 Flash","⚖️ متوسط","p","$0.75 / $3.75","الجيل السابق"],["gemini-3-flash-preview","Gemini 3 Flash Preview","⚖️ متوسط","p","$0.50 / $3.00","قديم"],["gemini-3.1-pro-preview","Gemini 3.1 Pro Preview","🐢 بطيء","f","$2.00 / $12.00","أدق في الفهم المعقد"],["gemini-4-argon","Gemini 4 Argon","🐢 بطيء","p","$2.00 / $10.00","قوي للمهام المعقدة"],["gemini-4-carbon","Gemini 4 Carbon (جديد)","🐢 بطيء","p","$2.00 / $10.00","الأقوى"]],
+MT=[["gemini-3.8-flash-tts","Gemini 3.8 Flash TTS","⚖️ متوسط","f","غير ظاهر لدي","الافتراضي الحالي (لم يظهر في لقطاتك، يُجرَّب غيره تلقائيًا إن لم يتوفر)"],["gemini-3.8-flash-lite-tts","Gemini 3.8 Flash Lite TTS","⚡ سريع","f","$0.50 / $6.00","للدبلجة السريعة"],["gemini-3.1-flash-tts-preview","Gemini 3.1 Flash TTS Preview","⚖️ متوسط","f","$1.00 / $20.00","تعبيري وقابل للتحكم"]];
+const stl=m=>m[3]==="p"?"💎 مدفوع (علامة Paid)":"🆓 بلا علامة Paid";
+const fillM=(id,list,none)=>{const el=$(id);if(none)el.append(new Option("بدون نموذج بديل",""));list.forEach(m=>el.append(new Option(m[1]+" — "+m[2]+" • "+(m[3]==="p"?"💎 مدفوع":"🆓 بلا علامة Paid"),m[0])))};
+fillM("tm",MA);fillM("tm2",MA,1);fillM("tmt",MT);
+const infoM=(id,out,list)=>{const f=()=>{const m=list.find(x=>x[0]===$(id).value);$(out).textContent=m?m[2]+" • "+stl(m)+" • السعر: "+m[4]+" • "+m[5]:"نموذج مخصص من إعداداتك السابقة."};$(id).addEventListener("change",f);return f};
 ["kt","ka","tm","tth","tm2","tmt","gv"].forEach(k=>{const kk=k==="kt"||k==="ka";let v=L("st_"+k);if(!v&&kk)v=L(k);if(v)$(k).value=kk?nk(v):v;$(k).oninput=()=>S("st_"+k,$(k).value);if(kk)$(k).onblur=()=>{$(k).value=nk($(k).value);S("st_"+k,$(k).value)}});
+["tm","tmt"].forEach(k=>{if(!$(k).value){const v=L("st_"+k)||L(k);if(v){$(k).append(new Option(v,v));$(k).value=v}else $(k).selectedIndex=0}});
+infoM("tm","tmi",MA)();infoM("tmt","tmti",MT)();
 if(!$("gv").value)$("gv").selectedIndex=0;
 if(!$("tm").value){const v=L("st_tm");if(v){const o=document.createElement("option");o.value=o.textContent=v;$("tm").append(o);$("tm").value=v}else $("tm").selectedIndex=0}
 let setPrev="up";
@@ -386,15 +394,17 @@ function wav(pcm,rate){const n=pcm.length,b=new ArrayBuffer(44+n*2),v=new DataVi
 async function tts(s,k0){const txt=s.tts||s.say,v=voice(),ak=[...new Set(keys("ka").concat(keys("kt")).filter(x=>!x.startsWith("sk-ant-")))],
   sty="Read as a warm, expressive storyteller for children in Algerian Arabic (Darija): natural pauses, a livelier voice for dialogue, a hushed voice for suspense. Keep French words as they are.";
   const p=await useKeys(ak,async k=>{let msg="";
-    for(const m of [...new Set([modelT(),"gemini-3.1-flash-tts-preview"])]){
-      for(let a=0;a<3;a++){
-        const r=await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},
-          body:JSON.stringify({contents:[{parts:[/3\.8/.test(m)?{text:txt,speechMetadata:{style:sty}}:{text:sty+"\n"+txt}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:v}}}}})},90000);
-        const d=await r.json().catch(()=>({}));
-        if(r.status===404){msg=(d.error&&d.error.message)||"النموذج غير متاح";break}
-        if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ "+r.status);
-        const pt=((d.candidates||[{}])[0].content||{parts:[]}).parts.find(x=>x.inlineData);if(pt)return pt;
-        await new Promise(z=>setTimeout(z,1200))}}
+    for(const m of [...new Set([modelT(),"gemini-3.1-flash-tts-preview"])]){let skip=false;
+      for(const vr of(/3\.8/.test(m)?["meta","prefix"]:["prefix"])){if(skip)break;
+        for(let a=0;a<3;a++){
+          const r=await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":k},
+            body:JSON.stringify({contents:[{parts:[vr==="meta"?{text:txt,speechMetadata:{style:sty}}:{text:sty+"\n"+txt}]}],generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:v}}}}})},90000);
+          const d=await r.json().catch(()=>({}));
+          if(r.status===404){msg=(d.error&&d.error.message)||"النموذج غير متاح";skip=true;break}
+          if(r.status===400&&vr==="meta"){msg=(d.error&&d.error.message)||"";break}
+          if(!r.ok)throw kerr(r.status,(d.error&&d.error.message)||"خطأ "+r.status);
+          const pt=((d.candidates||[{}])[0].content||{parts:[]}).parts.find(x=>x.inlineData);if(pt)return pt;
+          await new Promise(z=>setTimeout(z,1200))}}}
     throw new Error(msg||"لم يُرجع النموذج صوتًا، أعد المحاولة.")},k0);
   const raw=Uint8Array.from(atob(p.inlineData.data),c=>c.charCodeAt(0)),dv=new DataView(raw.buffer);let rate=+((/rate=(\d+)/.exec(p.inlineData.mimeType||"")||[])[1])||24000,off=0;
   if(raw[0]===82&&raw[1]===73&&raw[2]===70&&raw[3]===70){rate=dv.getUint32(24,true);off=44;for(let i=12;i<raw.length-8;){const id=String.fromCharCode(raw[i],raw[i+1],raw[i+2],raw[i+3]),sz=dv.getUint32(i+4,true);if(id==="data"){off=i+8;break}i+=8+sz+(sz&1)}}
